@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>Honeywell QAPMS</title>
+{#	<link rel="stylesheet" type="text/css" href="{{ static('css/reset.css') }}">#}
+{#	<link rel="stylesheet" type="text/css" href="{{ static('css/main.css') }}">#}
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+{#    <script type="text/javascript" src="{{ static('js/axios-0.18.0.min.js') }}"></script>#}
+</head>
+<body>
+    <div id="register">
+        <div class="register_con">
+            <div class="l_con fl">
+                <a href="index.html" class="reg_logo"><img src="../static/images/logo.png"></a>
+                <div class="reg_banner"></div>
+            </div>
+            <div class="r_con fr">
+                <div class="reg_title clearfix">
+                    <h1>用户注册</h1>
+                    <a href="login.html">登录</a>
+                </div>
+                <div class="reg_form clearfix">
+                    <form method="post" class="register_form" @submit="on_submit" v-cloak>
+                        {{ csrf_input }}
+                        {#post方法都需要csrf_input#}
+                        <ul>
+                            <li>
+                                <label>用户名:</label>
+                                <input type="text" v-model="username" @blur="check_username" placeholder="输入用户名，不要输入特殊字符" name="username" id="user_name">
+                                <span class="error_tip" v-show="error_name">[[ error_name_message ]]</span>
+                                <p>[[ username ]]  </p>
+                            </li>
+                            <li>
+                                <p>[[ EID ]]</p>
+                                <label>EID:</label>
+                                <input type="text" v-model="EID" @blur="check_EID" name="EID" id="EID">
+                                <span class="error_tip" v-show="error_EID">[[ error_EID_message ]]</span>
+                            </li>
+                            <li>
+                                <label>密码:</label>
+                                <input type="password" v-model="password" @blur="check_password" name="password" id="pwd">
+                                <span class="error_tip" v-show="error_password">[[ error_password_message ]]</span>
+                            </li>
+                            <li>
+                                <label>确认密码:</label>
+                                <input type="password" v-model="password2" @blur="check_password2" name="password2" id="cpwd">
+                                <span class="error_tip" v-show="error_password2">[[ error_password2_message ]]</span>
+                            </li>
+                            <li>
+                                <label>邮箱:</label>
+                                <input type="text" v-model="email" @blur="check_email" name="email" id="user_email">
+                                <span class="error_tip" v-show="error_email">[[ error_email_message ]]</span>
+                            </li>
+                            <li>
+                                <label>邮箱验证码:</label>
+                                <input type="text" v-model="email_code" @blur="check_email_code" name="email_code" id="email_code" class="email_input">
+                                    <a @click="send_email_code" class="get_email_code">获取邮件验证码</a>
+                                <span class="error_tip">请输入邮箱验证码</span>
+
+                                {% if email_code_errmsg %}
+                                    <span class="error_tip">[[ email_code_errmsg ]]</span>
+                                {% endif %}
+                            </li>
+                            <li class="reg_sub">
+                                <input type="submit" value="注 册">
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="{{ static('js/common.js') }}"></script>
+    <script type="text/javascript" src="{{ static('js/register.js' ) }}"></script>
+</body>
+</html>
