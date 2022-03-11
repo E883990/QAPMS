@@ -31,12 +31,13 @@ class ProjectView(View):
 
 
 class ProjectsView(View):
+
     def get(self, request):
         # 在.model的ProjectInformation表中条件查询项目数据
         projects = ProjectInformation.objects.all().order_by('id')
         # 将项目模型列表转字典列表:因为JsonResponse和Vue.js不认识模型类型，只有Django和Jinja2模板引擎认识
         if len(projects) == 0:
-            return http.HttpResponseForbidden('none proejct exist')
+            return http.HttpResponseForbidden('none project exist')
         project_list = []
         for project in projects:
             project_dict = {
@@ -51,5 +52,5 @@ class ProjectsView(View):
             'projects': project_list
         }
 
-        return render(request, 'projects.html', context)
+        return render(request, 'projects.html')
 

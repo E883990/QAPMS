@@ -4,7 +4,9 @@ from . import views
 
 app_name = 'projects'
 urlpatterns = [
+    # 项目列表的
     path('projects/',  views.ProjectsView.as_view(), name='projects'),
     path('project/<int:project_id>/',  views.ProjectView.as_view(), name='project'),
+
     path('test/',  views.TestView.as_view(), name='test'),
 ]

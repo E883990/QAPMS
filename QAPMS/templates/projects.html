@@ -2,11 +2,136 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>霍尼韦尔QA系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+
+    </style>
 </head>
 <body>
-{% for project in projects %}
-    <li>{{ project }}</li>
-{% endfor %}
+    <div id="projects">
+        <ol>
+            <li>
+                <details>
+                <summary>项目1</summary>
+                    <h3>项目成员</h3>
+                        <table>
+                        <tr>
+                            <td>项目经理</td>
+                            <td>经理名</td>
+                        </tr>
+                        <tr>
+                            <td>产品经理</td>
+                            <td>产品经理名</td>
+                        </tr>
+                        <tr>
+                            <td>QAPL</td>
+                            <td>QA名</td>
+                        </tr>
+                        <tr>
+                            <td>EPL</td>
+                            <td>EPL名</td>
+                        </tr>
+                        </table>
+
+                    <h3>项目描述:</h3>
+                        <article>这里是项目描述</article>
+                    <h3>项目周期:</h3>
+                        <table>
+                        <tr>
+                            <td>计划开始时间:</td>
+                            <td>计划开始年月日</td>
+                        </tr>
+                        <tr>
+                            <td>实际开始时间:</td>
+                            <td>实际开始年月日</td>
+                        </tr>
+                        <tr>
+                            <td>计划结束时间:</td>
+                            <td>计划结束年月日</td>
+                        </tr>
+                        <tr>
+                            <td>实际结束时间:</td>
+                            <td>实际结束年月日</td>
+                        </tr>
+                        </table>
+                    <h3>产品列表</h3>
+                        <table>
+                         <tr>
+                            <th>产品型号</th>
+                            <th>产品描述</th>
+                        </tr>
+                        <tr>
+                            <td>型号1</td>
+                            <td>描述1</td>
+                        </tr>
+                        </table>
+                </details>
+            </li>
+            <li>
+                <details>
+                <summary>项目2</summary>
+                    <h3>项目成员</h3>
+                        <table>
+                        <tr>
+                            <td>项目经理</td>
+                            <td>经理名</td>
+                        </tr>
+                        <tr>
+                            <td>产品经理</td>
+                            <td>产品经理名</td>
+                        </tr>
+                        <tr>
+                            <td>QAPL</td>
+                            <td>QA名</td>
+                        </tr>
+                        <tr>
+                            <td>EPL</td>
+                            <td>EPL名</td>
+                        </tr>
+                        </table>
+                    <h3>项目描述:</h3>
+                        <article>这里是项目描述</article>
+                    <h3>项目周期:</h3>
+                        <table>
+                        <tr>
+                            <td>计划开始时间:</td>
+                            <td>计划开始年月日</td>
+                        </tr>
+                        <tr>
+                            <td>实际开始时间:</td>
+                            <td>实际开始年月日</td>
+                        </tr>
+                        <tr>
+                            <td>计划结束时间:</td>
+                            <td>计划结束年月日</td>
+                        </tr>
+                        <tr>
+                            <td>实际结束时间:</td>
+                            <td>实际结束年月日</td>
+                        </tr>
+                        </table>
+                    <h3>产品列表</h3>
+                        <table>
+                         <tr>
+                            <th>产品型号</th>
+                            <th>产品描述</th>
+                        </tr>
+                        <tr>
+                            <td>型号1</td>
+                            <td>描述1</td>
+                        </tr>
+                        </table>
+                    </details>
+            </li>
+            <li>
+                <details>
+                <summary>项目3</summary>
+                </details>
+            </li>
+        </ol>
+        <button type="button">新建项目</button>
+    </div>
 </body>
+
 </html>

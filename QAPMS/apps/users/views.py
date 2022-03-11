@@ -11,6 +11,11 @@ from users.models import User
 # Create your views here.
 
 
+class LoginView(View):
+
+    def get(self, requset):
+        return render(requset, 'login.html')
+
 class UsernameCountView(View):
     """判断用户名是否重复注册"""
     def get(self, request, username):

@@ -4,6 +4,9 @@ from . import views
 
 app_name = 'users'
 urlpatterns = [
+    #用户登录的url路径
+    # path('', views.LoginView.as_view(), name='login'),
+    path('login/', views.LoginView.as_view(), name='login'),
     # 用户注册的url路径
     path('register/',  views.RegisterView.as_view(), name='register'),
     # 判断用户名是否注册
