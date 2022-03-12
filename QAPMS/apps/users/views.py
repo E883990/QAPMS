@@ -76,7 +76,7 @@ class LoginView(View):
         user = authenticate(username=username, password=password)
         if user is None:
             return render(request, 'login.html', {'account_errmsg': '用户名或密码错误'})
-
+        # if password
         # 实现状态保持
         login(request, user)
         # 设置状态保持的周期
