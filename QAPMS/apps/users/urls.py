@@ -4,8 +4,8 @@ from . import views
 
 app_name = 'users'
 urlpatterns = [
-    #用户登录的url路径
     # path('', views.LoginView.as_view(), name='login'),
+    #用户登录的url路径
     path('login/', views.LoginView.as_view(), name='login'),
     # 用户注册的url路径
     path('register/',  views.RegisterView.as_view(), name='register'),
@@ -15,4 +15,6 @@ urlpatterns = [
     re_path('EID/(?P<EID>[EH]{1}[0-9]{6})/count/', views.EIDCountView.as_view()),
     # 判断EMAIL是否注册
     re_path('email/(?P<email>[a-zA-Z0-9.]+@honeywell.com)/count/', views.EmailCountView.as_view()),
+    # 发送邮箱验证码
+    re_path('email_codes/(?P<email>[a-zA-Z0-9.]+@honeywell.com)', views.SendEmailCodeView.as_view()),
 ]

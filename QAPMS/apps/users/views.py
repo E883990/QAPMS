@@ -1,20 +1,65 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django import http
+import logging
+import random
 import re
+from django_redis import get_redis_connection
 from django.db import DatabaseError
 from django.urls import reverse
 from django.contrib.auth import login
 
-from QAPMS.utils.response_code import RETCODE
+from django.core.mail import send_mail
+from django.conf import settings
+
+from QAPMS.utils.response_code import RETCODE, err_msg
 from users.models import User
+from . import constants
+from celery_tasks.email.tasks import send_email_code
 # Create your views here.
 
+logger = logging.getLogger('django')
+
+class SendEmailCodeView(View):
+    """发送验证码"""
+
+    def get(self, request, email):
+        """
+        :param request: 请求对象
+        :param email: 邮箱
+        :return: JSON
+        """
+        # 生成验证码：生成6位数验证码
+        if not re.match(r'^[a-zA-Z0-9.]+@honeywell.com$', email):
+            return http.HttpResponseForbidden('参数email有误')
+        email_code = '%06d' % random.randint(0, 999999)
+        logger.info(email_code)
+        # 创建连接到redis的对象
+        redis_conn = get_redis_connection('verify_code')
+        # 判断用户是否频繁发送短信验证码
+        send_flag = redis_conn.get('send_flag_%s' % email)
+        if send_flag:
+            return http.JsonResponse({'code': RETCODE.THROTTLINGERR, 'errmsg': '发送验证码过于频繁'})
+        # 创建redis管道
+        pl = redis_conn.pipeline()
+        # 将命令添加到队列中
+        # 保存短信验证码
+        pl.setex('email_%s' % email, constants.Email_CODE_REDIS_EXPIRES, email_code)
+        # 保存发送短信验证码的标记
+        pl.setex('send_flag_%s' % email, constants.SEND_Email_CODE_INTERVAL, 1)
+        # 执行
+        pl.execute()
+        # 发送email
+        send_email_code.delay(email, email_code)
+        # send_mail('邮箱验证码', '您好，您的邮箱验证码是：'+str(email_code), settings.EMAIL_FROM, [email])
+        # print(settings.EMAIL_FROM)
+        # 响应结果
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'send success'})
 
 class LoginView(View):
 
-    def get(self, requset):
-        return render(requset, 'login.html')
+    def get(self, request):
+        return render(request, 'login.html')
 
 class UsernameCountView(View):
     """判断用户名是否重复注册"""
@@ -72,6 +117,7 @@ class RegisterView(View):
         password2 = request.POST.get('password2')
         email = request.POST.get('email')
         EID = request.POST.get('EID')
+        email_code_client = request.POST.get('email_code')
         # 校验参数：前后端的校验需要分开，避免恶意用户越过前端逻辑发请求，要保证后端的安全，前后端的校验逻辑相同
         # 判断参数是否齐全:all([列表])：会去校验列表中的元素是否为空，只要有一个为空，返回false
         if not all([username, password, password2, email, EID]):
@@ -96,9 +142,14 @@ class RegisterView(View):
             EID=EID).count() + User.objects.filter(email=email).count()
         if count != 0:
             return http.HttpResponseForbidden('账号/EID/邮箱已存在')
-
+        # 判断邮箱注册码
+        redis_conn = get_redis_connection('verify_code')
+        email_code_server = redis_conn.get('email_%s' % email)
+        if email_code_server is None:
+            return render(request, 'register.html', {'email_code_errmsg': '无效的邮箱验证码'})
+        if email_code_client != email_code_server.decode():
+            return render(request, 'register.html', {'email_code_errmsg': '输入短信验证码有误'})
         # 保存注册数据：是注册业务的核心
-        # return render(request, 'register.html', {'register_errmsg': '注册失败'})
         try:
             user = User.objects.create_user(username=username, password=password, email=email, EID=EID)
         except DatabaseError:

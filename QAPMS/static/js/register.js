@@ -32,55 +32,47 @@ let vm = new Vue({
     },
     methods: { // 定义和实现事件方法
         // 发送短信验证码
-        send_email_code() {},
-        //     // 避免恶意用户频繁的点击获取短信验证码的标签
-        //     if (this.send_flag == true) { // 先判断是否有人正在上厕所
-        //         return; // 有人正在上厕所，退回去
-        //     }
-        //     this.send_flag = true; // 如果可以进入到厕所，立即关门
-        //
-        //     // 校验数据：mobile，image_code
-        //     this.check_email();
-        //     if (this.error_email_address == true) {
-        //         this.send_flag = false;
-        //         return;
-        //     }
-        //
-        //     let url = '/sms_codes/' + this.email_address + '&uuid=' + this.uuid;
-        //     axios.get(url, {
-        //         responseType: 'json'
-        //     })
-        //         .then(response => {
-        //             if (response.data.code == '0') {
-        //                 // 展示倒计时60秒效果
-        //                 let num = 60;
-        //                 let t = setInterval(() => {
-        //                     if (num == 1) { // 倒计时即将结束
-        //                         clearInterval(t); // 停止回调函数的执行
-        //                         this.sms_code_tip = '获取短信验证码'; // 还原sms_code_tip的提示文字
-        //                         this.generate_image_code(); // 重新生成图形验证码
-        //                         this.send_flag = false;
-        //                     } else { // 正在倒计时
-        //                         num -= 1; // num = num - 1;
-        //                         this.sms_code_tip = num + '秒';
-        //                     }
-        //                 }, 1000)
-        //             } else {
-        //                 if (response.data.code == '4001') { // 图形验证码错误
-        //                     this.error_image_code_message = response.data.errmsg;
-        //                     this.error_image_code = true;
-        //                 } else { // 4002 短信验证码错误
-        //                     this.error_sms_code_message = response.data.errmsg;
-        //                     this.error_sms_code = true;
-        //                 }
-        //                 this.send_flag = false;
-        //             }
-        //         })
-        //         .catch(error => {
-        //             console.log(error.response);
-        //             this.send_flag = false;
-        //         })
-        // },
+        send_email_code() {
+            if (this.send_flag == true) { // 先判断是否有人正在上厕所
+                return; // 有人正在上厕所，退回去
+            }
+            this.send_flag = true; // 如果可以进入到厕所，立即关门
+            //检查邮箱，如果邮箱有错误提示，就不给点击
+            this.check_email();
+            if (this.error_email_address == true || this.email_address=='') {
+                this.send_flag = false;
+                return;
+            }
+            let url = '/email_codes/' + this.email_address;
+            axios.get(url, {
+                responseType: 'json'
+            })
+                .then(response => {
+                    if (response.data.code == '0') {
+                        // 展示倒计时60秒效果
+                        let num = 60;
+                        let t = setInterval(() => {
+                            if (num == 1) { // 倒计时即将结束
+                                clearInterval(t); // 停止回调函数的执行
+                                this.email_code_tip = '获取邮箱验证码'; // 还原email_code_tip的提示文字
+                                this.send_flag = false;
+                            } else { // 正在倒计时
+                                num -= 1;
+                                this.email_code_tip = num + '秒';
+                            }
+                        }, 1000)
+                    } else {
+                        this.error_email_code_message = response.data.errmsg;
+                        this.error_email_code = true;
+                        this.send_flag = false;
+                    }
+                })
+                .catch(error => {
+                    console.log(error.response);
+                    this.send_flag = false;
+                })
+        },
+
         // 校验用户名
         check_username() {
             // 用户名是5-20个字符，[a-zA-Z0-9_-]
@@ -125,7 +117,7 @@ let vm = new Vue({
                 this.error_EID=false;
             }else{
                 this.error_EID=true;
-                this.error_EID_message = '请输入正确的EID'
+                this.error_EID_message = '请输入正确的EID';
             }
                 // 判断EID是否重复注册
             if (this.error_EID == false) { // 只有当用户输入的EID满足条件时才回去判断
@@ -173,7 +165,8 @@ let vm = new Vue({
             } else {
                 this.error_email_message = '您输入的邮箱格式不正确，请使用您的公司邮箱';
                 this.error_email_address = true;
-                    // 判断EMAIL是否重复注册
+            }
+            // 判断EMAIL是否重复注册
             if (this.error_email_address == false) { // 只有当用户输入的EMAIL满足条件时才回去判断
                 let url = '/email/' + this.email_address + '/count/';
                 axios.get(url, {
@@ -182,7 +175,7 @@ let vm = new Vue({
                     .then(response => {
                         if (response.data.count == 1) {
                             // 用户名已存在
-                            this.error_email_address= 'email已存在';
+                            this.error_email_message = 'Email已被注册';
                             this.error_email_address = true;
                         } else {
                             // 用户名不存在
@@ -193,8 +186,6 @@ let vm = new Vue({
                         console.log(error.response);
                     })
                 }
-            }
-
         },
 
         // 校验邮箱验证码
