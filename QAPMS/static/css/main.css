@@ -111,11 +111,11 @@ html,body{height:100%}
 
 /* 登录页 */
 .login_top{width:960px;height:130px;margin:0 auto;}
-.login_logo{display:block;width:193px;height:76px;margin-top:30px;}
+.login_logo{display:block;width:250px;height:100px;margin-top:30px;}
 .login_form_bg{height:480px;background-color:#810101}
 .no-mp{margin-top:0px;}
 .login_form_wrap{width:1000px;height:480px;margin:0 auto;}
-.login_banner{width:500px;height:386px;background:url(../images/login_banner.png) no-repeat;margin-top:40px;}
+.login_banner{width:500px;height:386px;margin-top:40px;}
 .slogan{width:30px;height:300px;font-size:24px;color:#f9dddd;text-align:center;line-height:30px;margin:65px 0 0 30px}
 .login_form{width:368px;height:378px;border:1px solid #c6c6c5;background-color:#fff; margin-top:50px;}
 
@@ -146,7 +146,7 @@ html,body{height:100%}
 .more_input a:hover{color:#ff8800}
 
 .input_submit{width:100%;height:40px;position:absolute;left:0;top:180px;background-color:#ff5757;color:#fff;font-size:22px;border:0px;font-family:'Microsoft Yahei';cursor:pointer;}
-
+.input_submit_forbid{width:100%;height:40px;position:absolute;left:0;top:180px;background-color:gray;color:#fff;font-size:22px;border:0px;font-family:'Microsoft Yahei';cursor:pointer;}
 
 /* 注册页面 */
 .register_con{

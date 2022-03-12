@@ -7,7 +7,7 @@ import re
 from django_redis import get_redis_connection
 from django.db import DatabaseError
 from django.urls import reverse
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 
 from django.core.mail import send_mail
 from django.conf import settings
@@ -60,6 +60,35 @@ class LoginView(View):
 
     def get(self, request):
         return render(request, 'login.html')
+
+    def post(self, request):
+        # 接受参数
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        remembered = request.POST.get('remembered')
+
+        # 判断参数是否齐全
+        if not all([username, password]):
+            return http.HttpResponseForbidden('缺少必传参数')
+
+
+        # 认证登录用户
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return render(request, 'login.html', {'account_errmsg': '用户名或密码错误'})
+
+        # 实现状态保持
+        login(request, user)
+        # 设置状态保持的周期
+        if remembered != 'on':
+            # 没有记住用户：浏览器会话结束就过期
+            request.session.set_expiry(0)
+        else:
+            # 记住用户：None表示两周后过期
+            request.session.set_expiry(None)
+
+        # 响应登录结果
+        return redirect(reverse('users:index'))
 
 class UsernameCountView(View):
     """判断用户名是否重复注册"""
@@ -163,3 +192,7 @@ class RegisterView(View):
         # return redirect('/')
         # reverse('contents:index') == '/'
         return redirect(reverse('contents:index'))
+
+class IndexView(View):
+    def get(self, request):
+        return render(request, 'index.html')

@@ -5,6 +5,8 @@ from . import views
 app_name = 'users'
 urlpatterns = [
     # path('', views.LoginView.as_view(), name='login'),
+    # index的url路径
+    path('index/', views.IndexView.as_view(), name='index'),
     #用户登录的url路径
     path('login/', views.LoginView.as_view(), name='login'),
     # 用户注册的url路径
