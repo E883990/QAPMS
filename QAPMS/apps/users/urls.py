@@ -7,8 +7,12 @@ urlpatterns = [
     # path('', views.LoginView.as_view(), name='login'),
     # index的url路径
     path('index/', views.IndexView.as_view(), name='index'),
-    #用户登录的url路径
+    # 用户登录的url路径
     path('login/', views.LoginView.as_view(), name='login'),
+    # 用户退出登录的url路径
+    path('logout/', views.LogoutView.as_view(), name='logout'),
+    # 修改密码的url路径
+    path('change_password/(?P<EID>[EH]{1}[0-9]{6})/', views.ChangePassword.as_view(), name='change_password'),
     # 用户注册的url路径
     path('register/',  views.RegisterView.as_view(), name='register'),
     # 判断用户名是否注册

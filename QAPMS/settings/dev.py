@@ -225,3 +225,5 @@ EMAIL_HOST_PASSWORD = 'hpvrifpoqxwmbhgj'  # 邮箱授权时获得的密码，非
 EMAIL_FROM = 'Honeywell<419856935@qq.com>'  # 发件人抬头
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
+
+LOGIN_URL = '/login/'

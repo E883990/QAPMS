@@ -3,10 +3,10 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>霍尼韦尔QA系统</title>
-	<link rel="stylesheet" type="text/css" href="/static/css/reset.css">
-	<link rel="stylesheet" type="text/css" href="/static/css/main.css">
+	<link rel="stylesheet" type="text/css" href="{{ static('css/reset.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ static('css/main.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script type="text/javascript" src="/static/js/axios-0.18.0.min.js"></script>
+    <script type="text/javascript" src="{{ static('/js/axios-0.18.0.min.js') }}"></script>
 </head>
 <body>
     <div id="register">
@@ -65,5 +65,5 @@
     </div>
 
 </body>
-    <script src="/static/js/register.js"></script>
+    <script type="text/javascript" src="{{ static('/js/register.js') }}"></script>
 </html>

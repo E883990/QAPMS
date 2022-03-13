@@ -7,10 +7,8 @@ import re
 from django_redis import get_redis_connection
 from django.db import DatabaseError
 from django.urls import reverse
-from django.contrib.auth import login, authenticate
-
-from django.core.mail import send_mail
-from django.conf import settings
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from QAPMS.utils.response_code import RETCODE, err_msg
 from users.models import User
@@ -19,6 +17,70 @@ from celery_tasks.email.tasks import send_email_code
 # Create your views here.
 
 logger = logging.getLogger('django')
+class ChangePassword(LoginRequiredMixin, View):
+    def get(self, request, EID):
+        return render(request, 'change_password.html')
+
+
+class LogoutView(View):
+    """退出登录"""
+
+    def get(self, request):
+        """实现退出登录逻辑"""
+        # 清理session
+        logout(request)
+        # 退出登录，重定向到登录页
+        response = redirect(reverse('users:login'))
+        # 退出登录时清除cookie中的username
+        response.delete_cookie('username')
+        return response
+
+class LoginView(View):
+
+    def get(self, request):
+        return render(request, 'login.html')
+
+    def post(self, request):
+        # 接受参数
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        remembered = request.POST.get('remembered')
+
+        # 判断参数是否齐全
+        if not all([username, password]):
+            return http.HttpResponseForbidden('缺少必传参数')
+
+
+        # 认证登录用户
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return render(request, 'login.html', {'account_errmsg': '用户名或密码错误'})
+        # if password
+        # 实现状态保持
+        login(request, user)
+        # 设置状态保持的周期
+        if remembered != 'on':
+            # 没有记住用户：浏览器会话结束就过期
+            request.session.set_expiry(0)
+        else:
+            # 记住用户：None表示两周后过期
+            request.session.set_expiry(None)
+        # 响应登录结果
+        next = request.GET.get('next')
+        if next:
+            response = redirect(next)
+        else:
+            response = redirect(reverse('users:index'))
+        # 注册时用户名写入到cookie，有效期15天
+        response.set_cookie('username', user.username.replace(' ',''), max_age=3600 * 24 * 15)
+        response.set_cookie('EID', user.EID, max_age=3600 * 24 * 15)
+        # 响应登录结果
+        return response
+
+class IndexView(View):
+
+    def get(self, request):
+        return render(request, 'index.html')
 
 class SendEmailCodeView(View):
     """发送验证码"""
@@ -55,40 +117,6 @@ class SendEmailCodeView(View):
         # print(settings.EMAIL_FROM)
         # 响应结果
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'send success'})
-
-class LoginView(View):
-
-    def get(self, request):
-        return render(request, 'login.html')
-
-    def post(self, request):
-        # 接受参数
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        remembered = request.POST.get('remembered')
-
-        # 判断参数是否齐全
-        if not all([username, password]):
-            return http.HttpResponseForbidden('缺少必传参数')
-
-
-        # 认证登录用户
-        user = authenticate(username=username, password=password)
-        if user is None:
-            return render(request, 'login.html', {'account_errmsg': '用户名或密码错误'})
-        # if password
-        # 实现状态保持
-        login(request, user)
-        # 设置状态保持的周期
-        if remembered != 'on':
-            # 没有记住用户：浏览器会话结束就过期
-            request.session.set_expiry(0)
-        else:
-            # 记住用户：None表示两周后过期
-            request.session.set_expiry(None)
-
-        # 响应登录结果
-        return redirect(reverse('users:index'))
 
 class UsernameCountView(View):
     """判断用户名是否重复注册"""
@@ -186,13 +214,14 @@ class RegisterView(View):
 
         # 实现状态保持
         login(request, user)
-
+        # 响应注册结果
+        response = redirect(reverse('users:index'))
+        # 注册时用户名写入到cookie，有效期15天
+        response.set_cookie('username', user.username.replace(' ',''), max_age=3600 * 24 * 15)
+        response.set_cookie('EID', user.EID, max_age=3600 * 24 * 15)
         # 响应结果：重定向到首页
         # return http.HttpResponse('注册成功，重定向到首页')
         # return redirect('/')
         # reverse('contents:index') == '/'
-        return redirect(reverse('contents:index'))
+        return response
 
-class IndexView(View):
-    def get(self, request):
-        return render(request, 'index.html')

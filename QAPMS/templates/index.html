@@ -2,9 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>霍尼韦尔QA系统</title>
+    <link rel="stylesheet" type="text/css" href="{{ static('css/reset.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ static('css/main.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 <body>
-this is index page
+<div id="index">
+	<div class="header_con" v-cloak>
+		<div class="header">
+			<div class="welcome fl">欢迎来到霍尼韦尔QA项目管理系统!</div>
+			<div class="fr">
+                <div v-if="username" class="login_btn fl">
+                    欢迎您：<em>[[ username ]]</em>
+                    <span>|</span>
+                    <a href="{{ url('users:logout') }}" class="quit">退出</a>
+                    <span>|</span>
+					<a :href="change_password">修改密码</a>
+                    <span>|</span>
+
+                </div>
+                <div v-else class="login_btn fl">
+                    <a href="{{ url('users:login')}}">登录</a>
+                    <span>|</span>
+                    <a href="{{ url('users:register')}}">注册</a>
+                </div>
+
+
+
+			</div>
+		</div>
+	</div>
+</div>
+
 </body>
+    <script type="text/javascript" src="{{ static('/js/common.js') }}"></script>
+    <script type="text/javascript" src="{{ static('/js/index.js') }}"></script>
 </html>

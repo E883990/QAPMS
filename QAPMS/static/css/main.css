@@ -4,18 +4,19 @@ html,body{height:100%}
 /* 顶部样式 */
 .header_con{
 	background-color:#f7f7f7;
-	height:29px;
+	height:35px;
 	border-bottom:1px solid #dddddd
 }
 
 .header{
-	width:1200px;
+	width:1300px;
 	height:29px;
 	margin:0 auto;
 }
 
 .welcome,.login_info,.login_btn,.user_link{
-	line-height:29px;
+	line-height:40px;
+	font-size:24px;
 }
 
 .login_info{
