@@ -5,7 +5,7 @@ let app= new Vue({
         username: '',
         change_password:'',
     },
-    mounted(){
+    mounted:function (){
         this.username=getCookie('username');
         this.change_password='/change_password/' + getCookie('EID');
     }

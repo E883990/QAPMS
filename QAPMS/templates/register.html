@@ -17,7 +17,7 @@
                     <a href="login.html">登录</a>
                 </div>
                 <div class="reg_form clearfix">
-                    <form method="post" class="register_form" @submit="on_submit" v-cloak>
+                    <form method="post"  @submit="on_submit" v-cloak>
                         {{ csrf_input }}
                         <ul>
                             <li>
@@ -50,8 +50,8 @@
                                 <input type="text" v-model="email_code" @blur="check_email_code" name="email_code" id="msg_code" class="msg_input" placeholder="请输入您邮箱收到的验证码">
                                 <button @click="send_email_code" class="get_email_code">[[ email_code_tip ]]</button>
                                 <span class="error_tip" v-show="error_email_code">[[ error_email_code_message ]]</span>
-                                {% if sms_code_errmsg %}
-                                    <span class="error_tip">{{ sms_code_errmsg }}</span>
+                                {% if email_code_errmsg %}
+                                    <span class="error_tip">{{ email_code_errmsg }}</span>
                                 {% endif %}
                             </li>
                             <li class="reg_sub">

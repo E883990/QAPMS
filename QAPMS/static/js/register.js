@@ -4,7 +4,7 @@ let vm = new Vue({
     el: '#register', // 通过ID选择器找到绑定的HTML内容
     // 修改Vue读取变量的语法
     delimiters: ['[[', ']]'],
-    data: { // 数据对象
+    data: {
         // v-model
         username: '',
         EID:'',
@@ -28,9 +28,8 @@ let vm = new Vue({
         error_EID_message:'',
         error_email_message:'',
         error_email_code_message: '',
-
     },
-    methods: { // 定义和实现事件方法
+    methods: {
         // 发送短信验证码
         send_email_code() {
             if (this.send_flag == true) { // 先判断是否有人正在上厕所
@@ -88,7 +87,6 @@ let vm = new Vue({
                 this.error_name = true;
             }
 
-
             // 判断用户名是否重复注册
             if (this.error_name == false) { // 只有当用户输入的用户名满足条件时才回去判断
                 let url = '/username/' + this.username + '/count/';
@@ -142,7 +140,7 @@ let vm = new Vue({
         },
          // 校验密码
         check_password() {
-            let re = /^[0-9A-Za-z\W\S]{8,20}$/;
+            let re = /^[^\s]{8,20}$/;
             if (re.test(this.password)) {
                 this.error_password = false;
             } else {
@@ -210,7 +208,6 @@ let vm = new Vue({
             if (this.error_name == true || this.error_password == true || this.error_password2 == true || this.error_EID == true || this.error_email_address == true || this.error_email_code == true) {
                 // 禁用掉表单的提交事件
                 window.event.returnValue = false;
-
             }
         },
     }

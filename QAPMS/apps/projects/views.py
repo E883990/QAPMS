@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views import View
 from django import http
@@ -5,12 +6,7 @@ from .models import ProjectInformation
 # Create your views here.
 
 
-class TestView(View):
-    def get(self, request):
-        return http.HttpResponse('OK!')
-
-
-class ProjectView(View):
+class ProjectView(LoginRequiredMixin, View):
     def get(self, request, project_id):
         try:
             project = ProjectInformation.objects.get(id=project_id)
@@ -30,7 +26,7 @@ class ProjectView(View):
 
 
 
-class ProjectsView(View):
+class ProjectsView(LoginRequiredMixin,View):
 
     def get(self, request):
         # 在.model的ProjectInformation表中条件查询项目数据
@@ -53,4 +49,23 @@ class ProjectsView(View):
         }
 
         return render(request, 'projects.html')
+
+class CreateProjectView(LoginRequiredMixin,View):
+
+     def get(self,request):
+         return render(request, 'new_project.html')
+
+     def post(self,request):
+        pname=request.POST.get('pname')
+        pdesc = request.POST.get('pdesc')
+        pjm = request.POST.get('pjm')
+        pdm = request.POST.get('pdm')
+        QAPL = request.POST.get('QAPL')
+        EPL = request.POST.get('EPL')
+        plan_start = request.POST.get('pstart')
+        plan_end = request.POST.get('pend')
+        practical_start = request.POST.get('astart')
+        practical_end = request.POST.get('aend')
+        count = ProjectInformation.objects.filter(username=username).count()
+
 

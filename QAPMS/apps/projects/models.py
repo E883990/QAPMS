@@ -6,12 +6,25 @@ from QAPMS.utils.models import BaseModel
 
 
 class ProjectInformation(BaseModel):
+    GENDER_CHOICES = (
+        (1, 'PG1'),
+        (2, 'PG2'),
+        (3, 'PG3'),
+        (4, 'PG4'),
+        (5, 'PG5'),
+        (6, 'PG6')
+    )
     project_name = models.CharField(max_length=30, verbose_name='项目名称', unique=True)
     project_desc = models.CharField(max_length=500, verbose_name='项目描述')
     QAPL = models.CharField(max_length=25, verbose_name='QAPL')
     project_manager = models.CharField(max_length=25, verbose_name='项目经理')
     product_manager = models.CharField(max_length=25, verbose_name='产品经理')
     EPL = models.CharField(max_length=25)
+    plan_start = models.DateField(verbose_name='计划开始时间', null=True)
+    plan_end = models.DateField(verbose_name='计划结束时间', null=True)
+    practical_start = models.DateField(verbose_name='实际开始时间', null=True)
+    practical_end = models.DateField(verbose_name='实际结束时间', null=True)
+    status = models.SmallIntegerField(choices=GENDER_CHOICES, default=1, verbose_name='项目进度', null=True)
 
     class Meta:
         db_table = 'Project_Infor'
@@ -20,14 +33,34 @@ class ProjectInformation(BaseModel):
     def __str__(self):
         return self.project_name
 
+class Schedule(BaseModel):
+    GENDER_CHOICES = (
+        (1, 'PG1'),
+        (2, 'PG2'),
+        (3, 'PG3'),
+        (4, 'PG4'),
+        (5, 'PG5'),
+        (6, 'PG6')
+    )
+    project = models.ForeignKey(ProjectInformation, on_delete=models.PROTECT)
+    phase = models.SmallIntegerField(choices=GENDER_CHOICES, default=1, verbose_name='PG')
+    plan_start = models.DateField(verbose_name='计划开始时间', null=True)
+    plan_end = models.DateField(verbose_name='计划结束时间', null=True)
+    practical_start = models.DateField(verbose_name='实际开始时间', null=True)
+    practical_end = models.DateField(verbose_name='实际结束时间', null=True)
+
+    class Meta:
+        db_table = 'project_schedule'
+        verbose_name = '项目进度'
 
 class ProductInformation(BaseModel):
     GENDER_CHOICES = (
         (0, 'NVR'),
         (1, 'IPC'),
-        (2, 'PTZ')
+        (2, 'PTZ'),
+        (3, 'Accessory')
     )
-    project_id = models.ForeignKey(ProjectInformation, on_delete=models.PROTECT)
+    project = models.ForeignKey(ProjectInformation, on_delete=models.PROTECT)
     product_type = models.SmallIntegerField(choices=GENDER_CHOICES, default=1, verbose_name='产品类型')
     SKU = models.CharField(max_length=20, verbose_name='产品型号', unique=True)
     SKU_name = models.CharField(max_length=30, verbose_name='产品名称', null=True)

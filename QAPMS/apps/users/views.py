@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from django.shortcuts import render, redirect
 from django.views import View
 from django import http
@@ -20,6 +21,18 @@ logger = logging.getLogger('django')
 class ChangePassword(LoginRequiredMixin, View):
     def get(self, request, EID):
         return render(request, 'change_password.html')
+
+    def post(self, request, EID):
+        old_pwd = request.POST.get('old_pwd')
+        user = authenticate(username=EID, password=old_pwd)
+        new_pwd = request.POST.get('new_pwd')
+        new_pwd2 = request.POST.get('new_pwd2')
+        if user is None:
+            return render(request, 'change_password.html', {'cpwd_errmsg':'用户密码错误'})
+        if new_pwd != new_pwd2:
+            return http.HttpResponseForbidden('参数错误')
+        User.objects.filter(EID=EID).update(password=make_password(new_pwd))
+        return redirect(reverse('users:login'))
 
 
 class LogoutView(View):
@@ -141,7 +154,6 @@ class EIDCountView(View):
         """
         # 实现主体业务逻辑：使用EID查询对应的记录的条数(filter返回的是满足条件的结果集)
         count = User.objects.filter(EID=EID).count()
-        # 响应结果
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'count': count})
 
 
@@ -205,7 +217,7 @@ class RegisterView(View):
         if email_code_server is None:
             return render(request, 'register.html', {'email_code_errmsg': '无效的邮箱验证码'})
         if email_code_client != email_code_server.decode():
-            return render(request, 'register.html', {'email_code_errmsg': '输入短信验证码有误'})
+            return render(request, 'register.html', {'email_code_errmsg': '输入的邮箱验证码有误'})
         # 保存注册数据：是注册业务的核心
         try:
             user = User.objects.create_user(username=username, password=password, email=email, EID=EID)
