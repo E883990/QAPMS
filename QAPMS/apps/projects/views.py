@@ -1,12 +1,17 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.db import DatabaseError
+from django.shortcuts import render, redirect
 from django.views import View
 from django import http
+from django.urls import reverse
+
+from QAPMS.utils.response_code import RETCODE
 from .models import ProjectInformation
 # Create your views here.
 
 
 class ProjectView(LoginRequiredMixin, View):
+
     def get(self, request, project_id):
         try:
             project = ProjectInformation.objects.get(id=project_id)
@@ -25,8 +30,7 @@ class ProjectView(LoginRequiredMixin, View):
             return http.HttpResponse('project not found!')
 
 
-
-class ProjectsView(LoginRequiredMixin,View):
+class ProjectsView(LoginRequiredMixin, View):
 
     def get(self, request):
         # 在.model的ProjectInformation表中条件查询项目数据
@@ -48,15 +52,15 @@ class ProjectsView(LoginRequiredMixin,View):
             'projects': project_list
         }
 
-        return render(request, 'projects.html')
+        return render(request, 'projects.html', context=context)
 
-class CreateProjectView(LoginRequiredMixin,View):
+class CreateProjectView(LoginRequiredMixin, View):
 
-     def get(self,request):
-         return render(request, 'new_project.html')
+    def get(self, request):
+        return render(request, 'new_project.html')
 
-     def post(self,request):
-        pname=request.POST.get('pname')
+    def post(self, request):
+        pname = request.POST.get('pname')
         pdesc = request.POST.get('pdesc')
         pjm = request.POST.get('pjm')
         pdm = request.POST.get('pdm')
@@ -64,8 +68,21 @@ class CreateProjectView(LoginRequiredMixin,View):
         EPL = request.POST.get('EPL')
         plan_start = request.POST.get('pstart')
         plan_end = request.POST.get('pend')
-        practical_start = request.POST.get('astart')
-        practical_end = request.POST.get('aend')
-        count = ProjectInformation.objects.filter(username=username).count()
+        status = request.POST.get('PG')
+        count = ProjectInformation.objects.filter(project_name=pname).count()
+        if count != 0:
+            return http.HttpResponseForbidden('项目已存在')
+        try:
+            ProjectInformation.objects.create(project_name=pname, project_desc=pdesc,
+                                              QAPL=QAPL, project_manager=pjm,
+                                              product_manager=pdm, EPL=EPL,
+                                              plan_start=plan_start, plan_end=plan_end,
+                                              status=status)
+        except DatabaseError:
+            return render(request, 'new_project.html', {'new_project_errmsg': '注册失败'})
+        return redirect(reverse('projects:projects'))
 
-
+class ProjectCheckView(View):
+    def get(self, request, project_name):
+        count = ProjectInformation.objects.filter(project_name=project_name).count()
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'count': count})

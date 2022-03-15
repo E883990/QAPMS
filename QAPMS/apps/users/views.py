@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from QAPMS.utils.response_code import RETCODE, err_msg
+from QAPMS.utils.response_code import RETCODE
 from users.models import User
 from . import constants
 from celery_tasks.email.tasks import send_email_code
@@ -19,6 +19,7 @@ from celery_tasks.email.tasks import send_email_code
 
 logger = logging.getLogger('django')
 class ChangePassword(LoginRequiredMixin, View):
+
     def get(self, request, EID):
         return render(request, 'change_password.html')
 
@@ -149,7 +150,7 @@ class EIDCountView(View):
 
     def get(self, request, EID):
         """
-        :param username: 用户名
+        :param: 用户名
         :return: JSON
         """
         # 实现主体业务逻辑：使用EID查询对应的记录的条数(filter返回的是满足条件的结果集)
@@ -161,7 +162,7 @@ class EmailCountView(View):
     """判断EID是否重复注册"""
     def get(self, request, email):
         """
-        :param username: 用户名
+        :param: 用户名
         :return: JSON
         """
         # 实现主体业务逻辑：使用EID查询对应的记录的条数(filter返回的是满足条件的结果集)
