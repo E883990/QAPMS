@@ -1,3 +1,6 @@
+import datetime
+import json
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import DatabaseError
 from django.shortcuts import render, redirect
@@ -6,9 +9,40 @@ from django import http
 from django.urls import reverse
 
 from QAPMS.utils.response_code import RETCODE
-from .models import ProjectInformation
+from .models import ProjectInformation, ProductInformation
+
+
 # Create your views here.
 
+class TestView(View):
+    def get(self, request):
+        return render(request, 'test.html')
+
+    def post(self, request):
+        return http.HttpResponse('收到数据')
+
+class AddProductsView(View):
+    def get(self, request, project_id):
+        return render(request, 'add_product.html')
+
+    def post(self, request, project_id):
+        json_str = request.body.decode()
+        product_list = json.loads(json_str)
+        for product in product_list:
+            SKU = product.get('SKU')
+            SKU_type = product.get('SKU_type')
+            SKU_name = product.get('SKU_name')
+            SKU_desc = product.get('SKU_desc')
+            count = ProductInformation.objects.filter(SKU=SKU).count()
+            if count != 0:
+                return http.HttpResponseForbidden('product already exist')
+            try:
+                ProductInformation.objects.create(project_id=project_id, SKU=SKU,
+                                                  SKU_name=SKU_name, product_type=SKU_type,
+                                                  SKU_desc=SKU_desc)
+            except DatabaseError:
+                return http.HttpResponse('product save failed!')
+        return redirect(reverse('projects:projects'))
 
 class ProjectView(LoginRequiredMixin, View):
 
@@ -40,18 +74,27 @@ class ProjectsView(LoginRequiredMixin, View):
             return http.HttpResponseForbidden('none project exist')
         project_list = []
         for project in projects:
+            SKUs = project.productinformation_set.all()
             project_dict = {
                 'id': project.id,
                 'project_name': project.project_name,
                 'project_desc': project.project_desc,
+                'QAPL':project.QAPL,
+                'project_manager': project.project_manager,
+                'EPL': project.EPL,
+                'product_manager': project.product_manager,
+                'plan_start': project.plan_start,
+                'plan_end': project.plan_end,
+                'practical_start': project.practical_start,
+                'practical_end': project.practical_end,
+                'status': project.status,
+                'SKUs': SKUs
             }
             project_list.append(project_dict)
         # 构造上下文
         context = {
-            # 'default_project_id': login_user.default_address_id or '0',
             'projects': project_list
         }
-
         return render(request, 'projects.html', context=context)
 
 class CreateProjectView(LoginRequiredMixin, View):
@@ -68,19 +111,29 @@ class CreateProjectView(LoginRequiredMixin, View):
         EPL = request.POST.get('EPL')
         plan_start = request.POST.get('pstart')
         plan_end = request.POST.get('pend')
-        status = request.POST.get('PG')
         count = ProjectInformation.objects.filter(project_name=pname).count()
+
         if count != 0:
             return http.HttpResponseForbidden('项目已存在')
+        if QAPL:
+            if plan_start:
+                status = 3
+            else:
+                status = 2
+        else:
+            status = 1
         try:
             ProjectInformation.objects.create(project_name=pname, project_desc=pdesc,
                                               QAPL=QAPL, project_manager=pjm,
                                               product_manager=pdm, EPL=EPL,
-                                              plan_start=plan_start, plan_end=plan_end,
+                                              plan_start=plan_start or datetime.date(2017, 1, 1),
+                                              plan_end=plan_end or datetime.date(2017, 1, 1),
                                               status=status)
         except DatabaseError:
-            return render(request, 'new_project.html', {'new_project_errmsg': '注册失败'})
-        return redirect(reverse('projects:projects'))
+            return render(request, 'new_project.html', {'project_code_errmsg': 'create project failed'})
+        project_id = ProjectInformation.objects.get(project_name=pname).id
+        return redirect(reverse('projects:addproducts', kwargs={'project_id': project_id}))
+
 
 class ProjectCheckView(View):
     def get(self, request, project_name):

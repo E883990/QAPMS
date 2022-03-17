@@ -22,6 +22,4 @@ urlpatterns = [
     path('', include('users.urls', namespace='users')),
     # 包含项目路由
     path('', include('projects.urls', namespace='projects')),
-
-
 ]

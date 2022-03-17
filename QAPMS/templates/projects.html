@@ -4,55 +4,53 @@
     <meta charset="UTF-8">
     <title>霍尼韦尔QA系统</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <style>
-
-    </style>
 </head>
 <body>
     <div id="projects">
         <ol>
+            {% for project in projects  %}
             <li>
                 <details>
-                <summary>项目1</summary>
+                <summary>{{ project.project_name }}</summary>
                     <h3>项目成员</h3>
                         <table>
                         <tr>
-                            <td>项目经理</td>
-                            <td>经理名</td>
+                            <td>项目经理：</td>
+                            <td>{{ project.project_manager }}</td>
                         </tr>
                         <tr>
-                            <td>产品经理</td>
-                            <td>产品经理名</td>
+                            <td>产品经理：</td>
+                            <td>{{ project.product_manager }}</td>
                         </tr>
                         <tr>
-                            <td>QAPL</td>
-                            <td>QA名</td>
+                            <td>QAPL：</td>
+                            <td>{{ project.QAPL }}</td>
                         </tr>
                         <tr>
-                            <td>EPL</td>
-                            <td>EPL名</td>
+                            <td>EPL：</td>
+                            <td>{{ project.EPL }}</td>
                         </tr>
                         </table>
 
                     <h3>项目描述:</h3>
-                        <article>这里是项目描述</article>
+                        <article>{{ project.project_desc }}</article>
                     <h3>项目周期:</h3>
                         <table>
                         <tr>
                             <td>计划开始时间:</td>
-                            <td>计划开始年月日</td>
+                            <td>{{ project.plan_start }}</td>
                         </tr>
                         <tr>
                             <td>实际开始时间:</td>
-                            <td>实际开始年月日</td>
+                            <td>{{ project.practical_start }}</td>
                         </tr>
                         <tr>
                             <td>计划结束时间:</td>
-                            <td>计划结束年月日</td>
+                            <td>{{ project.plan_end }}</td>
                         </tr>
                         <tr>
                             <td>实际结束时间:</td>
-                            <td>实际结束年月日</td>
+                            <td>{{ project.practical_end }}</td>
                         </tr>
                         </table>
                     <h3>产品列表</h3>
@@ -61,76 +59,18 @@
                             <th>产品型号</th>
                             <th>产品描述</th>
                         </tr>
+                        {% for SKU in project.SKUs %}
                         <tr>
-                            <td>型号1</td>
-                            <td>描述1</td>
+                            <td>{{ SKU.SKU }}</td>
+                            <td>{{ SKU.SKU_name }}</td>
                         </tr>
+                        {% endfor %}
                         </table>
                 </details>
             </li>
-            <li>
-                <details>
-                <summary>项目2</summary>
-                    <h3>项目成员</h3>
-                        <table>
-                        <tr>
-                            <td>项目经理</td>
-                            <td>经理名</td>
-                        </tr>
-                        <tr>
-                            <td>产品经理</td>
-                            <td>产品经理名</td>
-                        </tr>
-                        <tr>
-                            <td>QAPL</td>
-                            <td>QA名</td>
-                        </tr>
-                        <tr>
-                            <td>EPL</td>
-                            <td>EPL名</td>
-                        </tr>
-                        </table>
-                    <h3>项目描述:</h3>
-                        <article>这里是项目描述</article>
-                    <h3>项目周期:</h3>
-                        <table>
-                        <tr>
-                            <td>计划开始时间:</td>
-                            <td>计划开始年月日</td>
-                        </tr>
-                        <tr>
-                            <td>实际开始时间:</td>
-                            <td>实际开始年月日</td>
-                        </tr>
-                        <tr>
-                            <td>计划结束时间:</td>
-                            <td>计划结束年月日</td>
-                        </tr>
-                        <tr>
-                            <td>实际结束时间:</td>
-                            <td>实际结束年月日</td>
-                        </tr>
-                        </table>
-                    <h3>产品列表</h3>
-                        <table>
-                         <tr>
-                            <th>产品型号</th>
-                            <th>产品描述</th>
-                        </tr>
-                        <tr>
-                            <td>型号1</td>
-                            <td>描述1</td>
-                        </tr>
-                        </table>
-                    </details>
-            </li>
-            <li>
-                <details>
-                <summary>项目3</summary>
-                </details>
-            </li>
+            {% endfor %}
         </ol>
-        <button type="button">新建项目</button>
+        <button onclick="window.location.href={{ url('projects:create_project') }}">新建项目</button>
     </div>
 </body>
 

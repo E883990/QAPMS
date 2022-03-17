@@ -64,6 +64,7 @@ class ProductInformation(BaseModel):
     product_type = models.SmallIntegerField(choices=GENDER_CHOICES, default=1, verbose_name='产品类型')
     SKU = models.CharField(max_length=20, verbose_name='产品型号', unique=True)
     SKU_name = models.CharField(max_length=30, verbose_name='产品名称', null=True)
+    SKU_desc = models.CharField(max_length=100, verbose_name='产品描述', null=True)
     is_delete = models.BooleanField(default=False, verbose_name='逻辑删除')
 
     class Meta:

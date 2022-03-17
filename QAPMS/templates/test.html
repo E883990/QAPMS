@@ -1,10 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>霍尼韦尔QA系统</title>
+	<link rel="stylesheet" type="text/css" href="{{ static('css/reset.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ static('css/main.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script type="text/javascript" src="{{ static('/js/axios-0.18.0.min.js') }}"></script>
 </head>
 <body>
-
+<div id="add_products">
+    <div>为项目 [[ pname ]] 添加设备</div>
+<fieldset>
+    <legend>添加设备</legend>
+    设备型号：<input type="text" v-model="new_SKU"/>
+    设备类型：<select name="SKU_type" v-model="new_SKU_type">
+                <option value="0">NVR</option>
+                <option value="1">IPC</option>
+                <option value="2">PTZ</option>
+                <option value="3">Accessory</option>
+            </select>
+    设备名称：<input type="text" v-model="new_SKU_name"/>
+    设备描述：<input type="text" v-model="new_SKU_desc"/>
+    <button type="button" @click="add_SKU">添加</button>
+    <span v-show="error_SKU">[[ error_SKU_msg ]]</span>
+</fieldset>
+<fieldset>
+    <legend>设备列表</legend>
+    <ul>
+        <li v-for="(each_SKU, index) in SKU_list">
+            设备型号：<span>[[ each_SKU.SKU ]]</span>
+            设备类型：<span>[[ each_SKU.SKU_type ]]</span>
+            设备名称：<span>[[ each_SKU.SKU_name ]]</span>
+            设备描述：<span>[[ each_SKU.SKU_desc ]]</span>
+            <a href="javascript:;"  @click="deleteSKU(index)">删除</a>
+        </li>
+    </ul>
+</fieldset>
+    <button type="button" @click="product_save">保存设备列表</button>
+</div>
+<script src={{ static('js/add_products.js') }}></script>
 </body>
+
 </html>
