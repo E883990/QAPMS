@@ -13,6 +13,9 @@ from .models import ProjectInformation, ProductInformation
 
 
 # Create your views here.
+class StoriesView(LoginRequiredMixin, View):
+    def get(self, request, project_id):
+        return render(request, 'stories.html')
 
 class TestView(View):
     def get(self, request):
@@ -21,9 +24,10 @@ class TestView(View):
     def post(self, request):
         return http.HttpResponse('收到数据')
 
-class AddProductsView(View):
+class AddProductsView(LoginRequiredMixin, View):
     def get(self, request, project_id):
-        return render(request, 'add_product.html')
+        project_name = ProjectInformation.objects.get(id=project_id).project_name
+        return render(request, 'add_product.html', project_name)
 
     def post(self, request, project_id):
         json_str = request.body.decode()
@@ -49,19 +53,26 @@ class ProjectView(LoginRequiredMixin, View):
     def get(self, request, project_id):
         try:
             project = ProjectInformation.objects.get(id=project_id)
+            # 这是序列化的代码
+            # SKUs = project.productinformation_set.all().values()
+            # SKUs_list = list(SKUs)
+            SKU = project.productinformation_set.all()
             project_dir = {
-                'id': project.id,
                 'project_name': project.project_name,
                 'project_desc': project.project_desc,
                 'QAPL': project.QAPL,
                 'project_manager': project.project_manager,
-                'product_manager': project.product_manager,
                 'EPL': project.EPL,
+                'product_manager': project.product_manager,
+                'plan_start': project.plan_start,
+                'plan_end': project.plan_end,
+                'practical_start': project.practical_start or '',
+                'practical_end': project.practical_end or '',
+                'SKUs': SKU
             }
-            context = {'project': project_dir}
-            return render(request, 'project.html', context)
-        except:
+        except DatabaseError:
             return http.HttpResponse('project not found!')
+        return render(request, 'project.html', project_dir)
 
 
 class ProjectsView(LoginRequiredMixin, View):
@@ -79,7 +90,7 @@ class ProjectsView(LoginRequiredMixin, View):
                 'id': project.id,
                 'project_name': project.project_name,
                 'project_desc': project.project_desc,
-                'QAPL':project.QAPL,
+                'QAPL': project.QAPL,
                 'project_manager': project.project_manager,
                 'EPL': project.EPL,
                 'product_manager': project.product_manager,

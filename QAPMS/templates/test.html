@@ -3,43 +3,56 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>霍尼韦尔QA系统</title>
-	<link rel="stylesheet" type="text/css" href="{{ static('css/reset.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ static('css/main.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script type="text/javascript" src="{{ static('/js/axios-0.18.0.min.js') }}"></script>
+    <style>
+    body{font-family:'Microsoft Yahei';font-size:12px;color: #333333;line-height: 1.2;overflow: auto}
+    html,body{height:100%}
+    .title,.PGs>a{ outline-style: solid; outline-color: #568dbd;background: lightblue;}
+    .title{position: sticky; top:10px;width: 92%; text-align: left; color: darkslategrey; font-size: 30px;padding: 1px}
+    .PGs{position: sticky; top:40px; width: 100%;text-align: center; }
+      ul {width: 90%;
+      list-style-type: none;
+      margin-top: 5px;
+      padding: 0;
+      overflow: hidden;
+    }
+    .PGs>li{border: 3px solid #666;
+    width: 15%; font-size: 20px; font-style:italic; font-weight: bold; text-align: center ;
+    {# margin: -3px; border:2px solid #666; #}
+    display:-moz-inline-box; /* css注释：for ff2 */
+    display:inline-block;
+    }
+    li {
+      float: left;
+    }
+
+    li a {
+      display: block;
+      padding: 8px;
+      background-color: #dddddd;
+    }
+</style>
 </head>
 <body>
-<div id="add_products">
-    <div>为项目 [[ pname ]] 添加设备</div>
-<fieldset>
-    <legend>添加设备</legend>
-    设备型号：<input type="text" v-model="new_SKU"/>
-    设备类型：<select name="SKU_type" v-model="new_SKU_type">
-                <option value="0">NVR</option>
-                <option value="1">IPC</option>
-                <option value="2">PTZ</option>
-                <option value="3">Accessory</option>
-            </select>
-    设备名称：<input type="text" v-model="new_SKU_name"/>
-    设备描述：<input type="text" v-model="new_SKU_desc"/>
-    <button type="button" @click="add_SKU">添加</button>
-    <span v-show="error_SKU">[[ error_SKU_msg ]]</span>
-</fieldset>
-<fieldset>
-    <legend>设备列表</legend>
-    <ul>
-        <li v-for="(each_SKU, index) in SKU_list">
-            设备型号：<span>[[ each_SKU.SKU ]]</span>
-            设备类型：<span>[[ each_SKU.SKU_type ]]</span>
-            设备名称：<span>[[ each_SKU.SKU_name ]]</span>
-            设备描述：<span>[[ each_SKU.SKU_desc ]]</span>
-            <a href="javascript:;"  @click="deleteSKU(index)">删除</a>
-        </li>
+<div id="project">
+    <div class="title">项目名称:</div>
+    <ul class="PGs">
+        <li><a @click="show_PG1" href="javascript:;">PG1</a></li>
+        <li><a @click="show_PG2" href="javascript:;">PG2</a></li>
+        <li><a @click="show_PG3" href="javascript:;">PG3</a></li>
+        <li><a @click="show_PG4" href="javascript:;">PG4</a></li>
+        <li><a @click="show_PG5" href="javascript:;">PG5</a></li>
+        <li><a @click="show_PG6" href="javascript:;">PG6</a></li>
     </ul>
-</fieldset>
-    <button type="button" @click="product_save">保存设备列表</button>
+    <div class="PG">
+        <div v-show="PG1">PG1infor</div>
+        <div v-show="PG2">PG2infor</div>
+        <div v-show="PG3">PG3infor</div>
+        <div v-show="PG4">PG4infor</div>
+        <div v-show="PG5">PG52infor</div>
+        <div v-show="PG6">PG6infor</div>
+    </div>
 </div>
-<script src={{ static('js/add_products.js') }}></script>
 </body>
-
+<script src={{ static('js/project.js') }}></script>
 </html>

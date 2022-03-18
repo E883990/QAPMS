@@ -1,6 +1,7 @@
 body{font-family:'Microsoft Yahei';font-size:12px;color:#666;}
 html,body{height:100%}
-/* 项目页样式 */
+/* projects页面样式 */
+.project_name{font-size:30px}
 /* 顶部样式 */
 .header_con{
 	background-color:#f7f7f7;

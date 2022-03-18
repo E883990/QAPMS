@@ -5,6 +5,8 @@ from . import views
 
 app_name = 'projects'
 urlpatterns = [
+    # 项目故事线
+    path('project/<int:project_id>/stories/', views.StoriesView.as_view(), name='stories'),
     # 增加设备
     path('addproducts/<int:project_id>', views.AddProductsView.as_view(), name='addproducts'),
     # 测试

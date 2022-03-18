@@ -1,12 +1,136 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>霍尼韦尔QA系统</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>霍尼韦尔QA系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script type="text/javascript" src="{{ static('/js/axios-0.18.0.min.js') }}"></script>
+<style>
+{#整体样式#}
+body{font-family:'Microsoft Yahei';font-size:12px;color: #333333;line-height: 1.2;overflow: auto}
+html,body{height:100%}
+
+/* 已被访问的链接 */
+/* a:visited {color: red;} */
+/* 将鼠标悬停在链接上 */
+a:hover:not(.active) {background-color: hotpink;}
+/* 被选择的链接 */
+a:active,.active{background-color: green;}
+{# PG标签的样式 #}
+.title,.PGs>a{ outline-style: solid; outline-color: #568dbd;background: lightblue;}
+.title{position: sticky; top:0;width: 91%; margin: auto; text-align: left; color: darkslategrey; font-size: 30px;padding: 1px}
+.PGs{position: sticky; top:34px; width: 100%;margin: auto; text-align: center; }
+.PGs>a{
+    width: 15%; font-size: 20px; font-style:italic; font-weight: bold;
+    {# margin: -3px; border:2px solid #666; #}
+    display:-moz-inline-box; /* css注释：for ff2 */
+    display:inline-block;
+    }
+.PG div{width: 91%; height: 900px;
+        margin-top: 5px;margin-left: auto;margin-right: auto;
+        border:4px solid #666;
+        background: #999999;
+        font-size:20px
+        }
+table{border-collapse: collapse}
+tr,td, th{border:4px solid #666;margin: 0}
+</style>
 </head>
 <body>
-
-    <li>{{ project }}</li>
-
+<div id="project">
+    <div class="title">项目名称:{{project_name}}</div>
+    <input type='text' v-model='project_name'  v-show='name_input' placeholder="项目名称" name="pname"/>
+    <button @click='change_name' type='button'v-show='name_change' class="btn_in">修改</button>
+    <button @click='save_name' type='button' v-show='name_save' class="btn_in">保存</button>
+    <div class="PGs">
+        <a  class="active" @click="show_PG1" href="#PG1">PG1</a>
+        <a @click="show_PG2" href="#PG2">PG2</a>
+        <a @click="show_PG3" href="#PG3">PG3</a>
+        <a @click="show_PG4" href="#PG4">PG4</a>
+        <a @click="show_PG5" href="#PG5">PG5</a>
+        <a @click="show_PG6" href="#PG6">PG6</a>
+    </div>
+    <div class="PG">
+        <div v-show="PG1">
+            <h3>项目描述：</h3>
+            <article>{{ project_desc }}</article></div>
+            <textarea maxlength="200" rows="5" cols="20" wrap="hard" type="text"  v-model='project_desc' v-show='desc_input' placeholder="项目描述" name="pdesc"></textarea>
+            <button @click='change_desc' type='button'v-show='desc_change' class="btn_out">修改</button>
+            <button @click='save_desc' type='button' v-show='desc_save' class="btn_out">保存</button>
+        <div v-show="PG2">
+            <h3>项目成员：</h3>
+            <table>
+            <tr>
+                <td>项目经理：</td>
+                <td>{{ project_manager}}</td>
+                <input v-model='project_m' v-show='members_input' type="text" name="pjm"/>
+            </tr>
+            <tr>
+                <td>产品经理：</td>
+                <td>{{ product_manager}}</td>
+                <input v-model='product_m' v-show='members_input' type="text" name="pdm"/>
+            </tr>
+            <tr>
+                <td>QAPL：</td>
+                <td>{{ QAPL}}</td>
+                <input v-model='QAPL' v-show='members_input' type="text" name="QAPL" />
+            </tr>
+            <tr>
+                <td>EPL：</td>
+                <td>{{ EPL}}</td>
+                <input v-model='EPL' v-show='members_input' type="text" name="EPL"/>
+            </tr>
+            </table>
+            <button @click='change_members' type='button'v-show='PG2_change' class="btn_out">修改</button>
+            <button @click='save_members' type='button' v-show='PG2_save' class="btn_out">保存</button>
+        </div>
+        <div v-show="PG3">
+            <h3>产品列表：</h3>
+            <table>
+             <tr>
+                <th>产品型号</th>
+                <th>产品描述</th>
+            </tr>
+            {% for SKU in SKUs %}
+            <tr>
+                <td>{{ SKU.SKU }}</td>
+                <td>{{SKU.SKU_name}}</td>
+            </tr>
+            {% endfor %}
+            <button @click='add_SKU' type='button'v-show='SKU_add' class="btn_out">增加</button>
+            <button @click='change_SKU' type='button'v-show='SKU_change' class="btn_out">修改</button>
+            <button @click='save_SKU' type='button' v-show='SKU_save' class="btn_out">保存</button>
+            </table>
+            <h3>项目周期:</h3>
+            <table>
+            <tr>
+                <td>计划开始时间:</td>
+                <td>{{plan_start}}</td>
+                <input v-model='pstart' v-show='p_input' type="date" name="pstart" />
+            </tr>
+            <tr>
+                <td>实际开始时间:</td>
+                <td>{{practical_start}}</td>
+                <input v-model='practical_start' v-show='practical_input' type="date" name="pend" />
+            </tr>
+            <tr>
+                <td>计划结束时间:</td>
+                <td>{{plan_end}}</td>
+                <input v-model='pend' v-show='p_input' type="date" name="pend" />
+            </tr>
+            <tr>
+                <td>实际结束时间:</td>
+                <td>{{practical_end}}</td>
+            </tr>
+            </table>
+            <button @click='change_plan' type='button'v-show='plan_change' class="btn_out">修改</button>
+            <button @click='save_plan' type='button' v-show='plan_save' class="btn_out">保存</button>
+        </div>
+        <div v-show="PG4">PG4infor</div>
+        <div v-show="PG5">PG52infor</div>
+        <div v-show="PG6">PG6infor</div>
+    </div>
+</div>
 </body>
+<script src={{ static('js/project.js') }}></script>
 </html>

@@ -1,17 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>霍尼韦尔QA系统</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>霍尼韦尔QA系统</title>
+	<link rel="stylesheet" type="text/css" href="{{ static('css/reset.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ static('css/main.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script type="text/javascript" src="{{ static('/js/axios-0.18.0.min.js') }}"></script>
 </head>
 <body>
     <div id="projects">
         <ol>
             {% for project in projects  %}
             <li>
-                <details>
-                <summary>{{ project.project_name }}</summary>
+                <details style="display: inline-block">
+                <summary class="project_name"><a href="{{ url('projects:project',args=(project.id, ))  }}">{{ project.project_name }}</a></summary>
                     <h3>项目成员</h3>
                         <table>
                         <tr>
@@ -67,6 +70,7 @@
                         {% endfor %}
                         </table>
                 </details>
+            <a href="{{ url('projects:stories', args=(project.id, )) }}" style="font-size: 30px;margin-left: 50px; color: #999999" >当前进度为：PG{{ project.status + 1 }}</a>
             </li>
             {% endfor %}
         </ol>

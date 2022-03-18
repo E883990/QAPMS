@@ -15,9 +15,7 @@ let app = new Vue({
         //error-message
         error_SKU_msg:'',
     },
-    mounted:function(){
-        // alert(pname);
-    },
+
     methods:{
         add_SKU:function(){
             if (!this.new_SKU){
@@ -51,7 +49,6 @@ let app = new Vue({
             this.SKU_list.splice(index,1)},
         product_save:function(){
             let url=window.location.href
-            alert (url)
             axios.post(url, this.SKU_list,{responseType: 'json'})
                 .then(res=>{ console.log(res) })
                 .catch(error=>{console.log(error.response)})
