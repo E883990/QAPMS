@@ -1,49 +1,22 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>霍尼韦尔QA系统</title>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ static('css/project.css') }}">
+    <script src="{{ static('/js/vue-2.6.14.js') }}"></script>
     <script type="text/javascript" src="{{ static('/js/axios-0.18.0.min.js') }}"></script>
-<style>
-{#整体样式#}
-body{font-family:'Microsoft Yahei';font-size:12px;color: #333333;line-height: 1.2;overflow: auto}
-html,body{height:100%}
-
-/* 已被访问的链接 */
-/* a:visited {color: red;} */
-/* 将鼠标悬停在链接上 */
-a:hover:not(.active) {background-color: hotpink;}
-/* 被选择的链接 */
-a:active,.active{background-color: green;}
-{# PG标签的样式 #}
-.title,.PGs>a{ outline-style: solid; outline-color: #568dbd;background: lightblue;}
-.title{position: sticky; top:0;width: 91%; margin: auto; text-align: left; color: darkslategrey; font-size: 30px;padding: 1px}
-.PGs{position: sticky; top:34px; width: 100%;margin: auto; text-align: center; }
-.PGs>a{
-    width: 15%; font-size: 20px; font-style:italic; font-weight: bold;
-    {# margin: -3px; border:2px solid #666; #}
-    display:-moz-inline-box; /* css注释：for ff2 */
-    display:inline-block;
-    }
-.PG div{width: 91%; height: 900px;
-        margin-top: 5px;margin-left: auto;margin-right: auto;
-        border:4px solid #666;
-        background: #999999;
-        font-size:20px
-        }
-table{border-collapse: collapse}
-tr,td, th{border:4px solid #666;margin: 0}
-</style>
 </head>
 <body>
 <div id="project">
-    <div class="title">项目名称:{{project_name}}</div>
-    <input type='text' v-model='project_name'  v-show='name_input' placeholder="项目名称" name="pname"/>
-    <button @click='change_name' type='button'v-show='name_change' class="btn_in">修改</button>
-    <button @click='save_name' type='button' v-show='name_save' class="btn_in">保存</button>
+    <label class="title">项目名称:{{project_name}}
+    <input maxlength="30" type='text' v-model='project_name' v-show='name_input' placeholder="项目名称" name="pname"/>
+    <span class="show_change" v-show="update_name_show">项目名已修改为:[[project_name]]</span>
+    <span class="show_change" v-show="error_project_name">[[error_project_name_msg]]</span>
+    <button @click='change_name' type='button' v-show='name_change' class="btn_in">修改</button>
+    <button @click='save_name' type='button' v-show='name_save' class="btn_in">保存</button></label>
     <div class="PGs">
-        <a  class="active" @click="show_PG1" href="#PG1">PG1</a>
+        <a class="active" @click="show_PG1" href="#PG1">PG1</a>
         <a @click="show_PG2" href="#PG2">PG2</a>
         <a @click="show_PG3" href="#PG3">PG3</a>
         <a @click="show_PG4" href="#PG4">PG4</a>
@@ -53,84 +26,166 @@ tr,td, th{border:4px solid #666;margin: 0}
     <div class="PG">
         <div v-show="PG1">
             <h3>项目描述：</h3>
-            <article>{{ project_desc }}</article></div>
-            <textarea maxlength="200" rows="5" cols="20" wrap="hard" type="text"  v-model='project_desc' v-show='desc_input' placeholder="项目描述" name="pdesc"></textarea>
-            <button @click='change_desc' type='button'v-show='desc_change' class="btn_out">修改</button>
+            <article>{{ project_desc }}</article>
+            <label>
+            <textarea maxlength="200" rows="5" cols="20" wrap="hard" v-model='project_desc' v-show='desc_input' placeholder="项目描述" name="pdesc"></textarea>
+            <span class="show_change" v-show="update_desc_show">项目描述修改为:[[project_desc]]</span>
+            </label>
+            <button @click='change_desc' type='button' v-show='desc_change' class="btn_out">修改</button>
             <button @click='save_desc' type='button' v-show='desc_save' class="btn_out">保存</button>
+            <span class="show_change" v-show="error_project_desc">[[error_project_name_msg]]</span>
+        </div>
         <div v-show="PG2">
             <h3>项目成员：</h3>
             <table>
             <tr>
                 <td>项目经理：</td>
                 <td>{{ project_manager}}</td>
-                <input v-model='project_m' v-show='members_input' type="text" name="pjm"/>
+                <td v-show="update_members_show">修改为[[project_m]]</td>
+                <td v-show='members_input'><input maxlength="25" v-model='project_m'  type="text" name="pjm" placeholder="修改项目成员"/></td>
             </tr>
             <tr>
                 <td>产品经理：</td>
                 <td>{{ product_manager}}</td>
-                <input v-model='product_m' v-show='members_input' type="text" name="pdm"/>
+                <td v-show="update_members_show">修改为[[product_m]]</td>
+                <td v-show='members_input'><input maxlength="25" v-model='product_m' type="text" name="pdm" placeholder="修改项目成员"/></td>
             </tr>
             <tr>
                 <td>QAPL：</td>
                 <td>{{ QAPL}}</td>
-                <input v-model='QAPL' v-show='members_input' type="text" name="QAPL" />
+                <td v-show="update_members_show">修改为[[QAPL]]</td>
+                <td v-show='members_input'><input maxlength="25" v-model='QAPL' type="text" name="QAPL" placeholder="修改项目成员"/></td>
             </tr>
             <tr>
                 <td>EPL：</td>
                 <td>{{ EPL}}</td>
-                <input v-model='EPL' v-show='members_input' type="text" name="EPL"/>
+                <td v-show="update_members_show">修改为[[EPL]]</td>
+                <td v-show='members_input'><input maxlength="25" v-model='EPL'  type="text" name="EPL" placeholder="修改项目成员"/></td>
             </tr>
             </table>
-            <button @click='change_members' type='button'v-show='PG2_change' class="btn_out">修改</button>
-            <button @click='save_members' type='button' v-show='PG2_save' class="btn_out">保存</button>
+            <button @click='change_members' type='button' v-show='members_change' class="btn_out">修改</button>
+            <button @click='save_members' type='button' v-show='members_save' class="btn_out">保存</button>
+            <span class="show_change" v-show="error_members">[[error_update_members_msg]]</span>
         </div>
         <div v-show="PG3">
-            <h3>产品列表：</h3>
+            <h3>设备列表（共<b>[[SKU_list.length]]</b>个）：</h3>
             <table>
              <tr>
-                <th>产品型号</th>
-                <th>产品描述</th>
+                <th>设备型号</th>
+                <th>设备类型</th>
+                <th>设备名称</th>
+                <th>设备描述</th>
             </tr>
-            {% for SKU in SKUs %}
-            <tr>
-                <td>{{ SKU.SKU }}</td>
-                <td>{{SKU.SKU_name}}</td>
+            <tr v-for="(SKU, index) in SKU_list">
+                <td> [[SKU.SKU]]
+                    <a @click="show_edit_SKU(index)" class="edit_SKU"></a>
+                </td>
+                <td> [[SKU.product_type]] </td>
+                <td> [[SKU.SKU_name]]</td>
+                <td> [[SKU.SKU_desc]] </td>
             </tr>
-            {% endfor %}
-            <button @click='add_SKU' type='button'v-show='SKU_add' class="btn_out">增加</button>
-            <button @click='change_SKU' type='button'v-show='SKU_change' class="btn_out">修改</button>
-            <button @click='save_SKU' type='button' v-show='SKU_save' class="btn_out">保存</button>
             </table>
+            <button @click='show_addSKU_form' type='button' v-show='SKU_add' class="btn_out">增加</button>
+            <button @click='save_SKU' type='button' v-show='SKU_save' class="btn_out">保存</button>
+
+            <div v-show="add_SKU_show">
+                <fieldset>
+                    <legend>添加设备</legend>
+                    <label>设备型号：</label><input type="text" v-model="new_SKU"/>
+                    <label>设备类型：</label><select name="SKU_type" v-model="new_SKU_type">
+                                <option value="0">NVR</option>
+                                <option value="1" selected="selected">IPC</option>
+                                <option value="2">PTZ</option>
+                                <option value="3">Accessory</option>
+                            </select>
+                    <label>设备名称：</label><input type="text" v-model="new_SKU_name"/>
+                    <label>设备描述：</label><input type="text" v-model="new_SKU_desc"/>
+                    <button type="button" @click="add_SKU">添加</button>
+                    <button type="button" @click="cancel_add">取消</button>
+                    <span v-show="error_SKU">[[ error_SKU_msg ]]</span>
+                </fieldset>
+            </div>
             <h3>项目周期:</h3>
             <table>
             <tr>
                 <td>计划开始时间:</td>
                 <td>{{plan_start}}</td>
-                <input v-model='pstart' v-show='p_input' type="date" name="pstart" />
-            </tr>
-            <tr>
-                <td>实际开始时间:</td>
-                <td>{{practical_start}}</td>
-                <input v-model='practical_start' v-show='practical_input' type="date" name="pend" />
+                <td v-show='p_input'><input v-model='pstart' type="date" name="pstart" /></td>
             </tr>
             <tr>
                 <td>计划结束时间:</td>
                 <td>{{plan_end}}</td>
-                <input v-model='pend' v-show='p_input' type="date" name="pend" />
+                <td v-show='p_input'><input v-model='pend' type="date" name="pend" /></td>
+                <td>
+                    <button @click='change_plan' type='button' v-show='plan_change' class="btn_out">修改</button>
+                    <button @click='save_plan' type='button' v-show='plan_save' class="btn_out">保存</button>
+                </td>
+            </tr>
+            <tr>
+                <td>实际开始时间:</td>
+                <td>{{practical_start}}</td>
+                <td v-show='practical_input'><input v-model='practical_start' type="date" name="pend" /></td>
             </tr>
             <tr>
                 <td>实际结束时间:</td>
                 <td>{{practical_end}}</td>
+                <td v-show='practical_input'><input v-model='practical_send'  type="date" name="pend" /></td>
+                <td>
+                    <button @click='change_practical' type='button' v-show='practical_change' class="btn_out">修改</button>
+                    <button @click='save_practical' type='button' v-show='practical_save' class="btn_out">保存</button>
+                </td>
             </tr>
             </table>
-            <button @click='change_plan' type='button'v-show='plan_change' class="btn_out">修改</button>
-            <button @click='save_plan' type='button' v-show='plan_save' class="btn_out">保存</button>
+
         </div>
         <div v-show="PG4">PG4infor</div>
         <div v-show="PG5">PG52infor</div>
         <div v-show="PG6">PG6infor</div>
     </div>
+
+
+    <div v-show="show_edit_table" v-cloak>
+		<div class="SKU_con SKU_pop">
+            <div class="SKU_pop_title">
+                <h3>修改设备信息</h3>
+                <a @click="show_edit_table=false">×</a>
+            </div>
+            <form>
+                <div class="form_group">
+                    <label>设备型号：</label>
+                    <input v-model="form_SKU.SKU" @blur="check_SKU" type="text">
+                    <span v-show="error_SKU" class="SKU_error">[[ SKU_error_msg]]</span>
+                </div>
+                <div class="form_group">
+                    <label>设备类型：</label>
+                    <select name="SKU_type" v-model="form_SKU.product_type">
+                        <option value="0">NVR</option>
+                        <option value="1" selected="selected">IPC</option>
+                        <option value="2">PTZ</option>
+                        <option value="3">Accessory</option>
+                    </select>
+                </div>
+                <div class="form_group">
+                    <label>设备名称：</label>
+                    <input v-model="form_SKU.SKU_name" type="text" @blur="check_SKU">
+                </div>
+                <div class="form_group">
+                    <label>设备描述：</label>
+                    <input v-model="form_SKU.SKU_desc"  type="text" @blur="check_SKU">
+                </div>
+                <input @click="save_SKU" type="button" name="" value="保存修改" class="info_submit">
+                <input @click="show_edit_table=false" type="reset" value="取 消" class="info_submit info_reset">
+
+            </form>
+		</div>
+		<div class="mask"></div>
+	</div>
 </div>
 </body>
-<script src={{ static('js/project.js') }}></script>
-</html>
+<script type="text/javascript">
+    let SKUs= {{ SKUs | safe }};
+    let project_id={{ project_id | safe }}
+</script>
+	<script type="text/javascript" src="{{ static('js/common.js') }}"></script>
+    <script type="text/javascript" src={{ static('js/project.js') }}></script>
+</html>s

@@ -34,25 +34,41 @@
 </style>
 </head>
 <body>
-<div id="project">
-    <div class="title">项目名称:</div>
-    <ul class="PGs">
-        <li><a @click="show_PG1" href="javascript:;">PG1</a></li>
-        <li><a @click="show_PG2" href="javascript:;">PG2</a></li>
-        <li><a @click="show_PG3" href="javascript:;">PG3</a></li>
-        <li><a @click="show_PG4" href="javascript:;">PG4</a></li>
-        <li><a @click="show_PG5" href="javascript:;">PG5</a></li>
-        <li><a @click="show_PG6" href="javascript:;">PG6</a></li>
-    </ul>
-    <div class="PG">
-        <div v-show="PG1">PG1infor</div>
-        <div v-show="PG2">PG2infor</div>
-        <div v-show="PG3">PG3infor</div>
-        <div v-show="PG4">PG4infor</div>
-        <div v-show="PG5">PG52infor</div>
-        <div v-show="PG6">PG6infor</div>
-    </div>
-</div>
+	<div class="pop_con" v-show="show_edit_table" v-cloak>
+		<div class="site_con site_pop">
+            <div class="site_pop_title">
+                <h3>修改/增加设备信息</h3>
+                <a @click="is_show_edit=false">×</a>
+            </div>
+            <form>
+                <div class="form_group">
+                    <label>设备型号：</label>
+                    <input v-model="form_SKU.SKU" @blur="check_receiver" type="text" class="receiver">
+                    <span v-show="error_SKU" class="receiver_error">请填写收件人</span>
+                </div>
+                <div class="form_group">
+                    <label>设备类型：</label>
+                    <select name="SKU_type" v-model="form_SKU.product_type">
+                        <option value="0">NVR</option>
+                        <option value="1" selected="selected">IPC</option>
+                        <option value="2">PTZ</option>
+                        <option value="3">Accessory</option>
+                    </select>
+                </div>
+                <div class="form_group">
+                    <label>设备名称：</label>
+                    <input v-model="form_SKU.SKU_name" type="text" class="mobile">
+                </div>
+                <div class="form_group">
+                    <label>设备描述：</label>
+                    <input v-model="form_SKU.SKU_desc"  type="text" class="tel">
+                </div>
+                <input @click="save_SKU" type="button" name="" value="新 增" class="info_submit">
+                <input @click="is_show_edit=false" type="reset" value="取 消" class="info_submit info_reset">
+            </form>
+		</div>
+		<div class="mask"></div>
+	</div>
 </body>
 <script src={{ static('js/project.js') }}></script>
 </html>
