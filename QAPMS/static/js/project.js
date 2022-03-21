@@ -4,8 +4,8 @@ let app = new Vue({
     data: {
         url: window.location.href + 'update/',
         SKU_list: JSON.parse(JSON.stringify(SKUs)),
-        show_edit_table: false,
-        p_id:JSON.parse(JSON.stringify(project_id)),
+        PG_shows: JSON.parse(JSON.stringify(PG_show)),
+        p_id: JSON.parse(JSON.stringify(project_id)),
         form_SKU: {
             id:'',
             SKU: '',
@@ -13,6 +13,7 @@ let app = new Vue({
             SKU_name: '',
             SKU_desc: '',
         },
+        SKU_check_list:[],
         editing_SKU_index:'',
         //v-model:
         project_name: '',
@@ -21,13 +22,13 @@ let app = new Vue({
         project_m: '',
         EPL: '',
         product_m: '',
-        plan_start: '',
-        plan_end: '',
+        pstart: '',
+        pend: '',
         practical_start: '',
         practical_end: '',
+        new_SKU_list:[],
         new_SKU:'',
-        new_SKU_type:'',
-        new_SKU_list:'',
+        new_SKU_type:1,
         new_SKU_name:'',
         new_SKU_desc:'',
         //v-show:
@@ -63,11 +64,15 @@ let app = new Vue({
         project_change: false,
         project_save: true,
         project_submit: false,
+        new_plan:false,
+        new_practical:false,
         //设备
         SKU_add:true,
         SKU_save:false,
         add_SKU_show:false,
         error_SKU:false,
+        added_SKU_show:false,
+        show_edit_table: false,
         //修改后展示：
         update_name_show: false,
         update_desc_show: false,
@@ -77,6 +82,28 @@ let app = new Vue({
         error_update_members_msg:'',
         error_SKU_msg:'',
         SKU_error_msg:'',
+    },
+    mounted:function (){
+       switch (this.PG_shows){
+           case "PG1":
+               this.show_PG1();
+               break;
+           case "PG2":
+               this.show_PG2();
+               break;
+           case "PG3":
+               this.show_PG3();
+               break;
+           case "PG4":
+               this.show_PG4();
+               break;
+           case "PG5":
+               this.show_PG5();
+               break;
+           case "PG6":
+               this.show_PG6();
+               break;
+       }
     },
     methods:{
         show_PG1:function (){
@@ -215,12 +242,7 @@ let app = new Vue({
                     console.log(error.response);
                 })
         },
-        show_addSKU_form:function (){
-            this.add_SKU_show=true;
-        },
-        cancel_add:function (){
-            this.add_SKU_show=false;
-        },
+        // 展示修改设备界面
         show_edit_SKU(index){
             this.show_edit_table = true;
             this.error_SKU=false;
@@ -228,13 +250,14 @@ let app = new Vue({
             // 只获取要编辑的数据
             this.form_SKU = JSON.parse(JSON.stringify(this.SKU_list[index]));
         },
-        // 校验SKU必须输入
+        // 校验SKU必须输入,其他可以为空
         check_SKU(){
             if (!this.form_SKU.SKU) {
                 this.error_SKU = true;
                 this.SKU_error_msg='此处不得为空'
             }
         },
+        // 保存设备的修改
         save_SKU:function (){
             if(this.error_SKU){alert('信息填写有误！');}
             else {
@@ -257,10 +280,140 @@ let app = new Vue({
                      .catch(error => {alert(error.response);})
             }
         },
-        change_plan:function (){},
-        save_plan:function (){},
-        change_practical(){},
-        save_practical(){},
-        add_SKU(){}
+        // 展示添加设备界面
+        show_addSKU_form:function (){
+            this.add_SKU_show=true;
+            if (this.new_SKU_list.length!==0){
+                this.added_SKU_show=true;
+            }
+        },
+        // 取消添加
+        cancel_add:function (){
+            this.add_SKU_show=false;
+            this.added_SKU_show=false
+        },
+        // 设备输入检查，只检查型号
+        new_SKU_check(){
+            //先将错误码取消，否则失败一次永远无法添加
+            this.error_SKU = false;
+            //  判断需要添加的设备是否重名
+            // 1.检查SKU_list设备列表:
+                 // js没有python的for in 函数，只能通过循环获取字典中所有SKU的值，通过include来判断
+            if (this.SKU_list.length !== 0){
+                for (let x in this.SKU_list){
+                    this.SKU_check_list.push(this.SKU_list[x].SKU);
+                }
+            }
+             // 2.检查已添加的设备列表:
+            if (this.new_SKU_list.length !== 0){
+                for (let x in this.new_SKU_list){
+                    this.SKU_check_list.push(this.new_SKU_list[x].SKU);
+                }
+            }
+            //  3.进行检查
+            if (this.SKU_check_list.includes(this.new_SKU)){
+                    this.error_SKU = true;
+                    this.error_SKU_msg = '设备已存在，请检查设备列表'
+                }
+            // 4.清空检查表，防止重复添加
+            this.SKU_check_list=[];
+        },
+        add_SKU(){
+        // 1.检查设备是否为空
+            if(!this.new_SKU){
+                this.error_SKU = true;
+                this.error_SKU_msg = '请输入设备名'
+            }
+        // 2.展示添加的设备框，
+            if(!this.added_SKU_show){
+                this.added_SKU_show=true;
+            }
+        // 3.检查是否有错误
+            if(this.error_SKU){alert('请检查输入的设备型号')}
+        // 4.将设备加入新设备列表
+            else {
+                this.new_SKU_list.push({SKU:this.new_SKU,
+                                        SKU_type:this.new_SKU_type,
+                                        SKU_name:this.new_SKU_name,
+                                        SKU_desc:this.new_SKU_desc});
+                this.new_SKU='';
+                this.new_SKU_name='';
+                this.new_SKU_desc='';
+                this.error_SKU = false;
+            }
+        },
+        deleteSKU:function(index){this.new_SKU_list.splice(index,1)},
+        product_save:function (){
+            let url='/addproducts/'+this.p_id.toString()+'/';
+            axios.post(url, this.new_SKU_list,{
+                headers: {'X-CSRFToken':getCookie('csrftoken')},
+                responseType: 'json'
+            })
+                .then(res=>{
+                        console.log(res);
+                        location.reload(true);
+                })
+                .catch(error=>{console.log(error.response)})
+        },
+        change_plan:function (){
+            this.p_input=true;
+            this.plan_change=false;
+            this.plan_save=true;
+            this.new_plan=false;
+        },
+        save_plan:function (){
+            this.p_input=false;
+            this.plan_change=true;
+            this.plan_save=false;
+            // 1.判断输入是否为空
+            if(this.pstart==='' || this.pend===''){
+                alert('未输入数据')
+            }
+            // 2.发送不为空的数据
+            else {
+                this.new_plan=true;
+                let data = {'pstart':this.pstart,'pend':this.pend};
+                axios.put(this.url, data ,
+                    {headers: {'X-CSRFToken':getCookie('csrftoken')},
+                     responseType: 'json'})
+                .then(res=>{
+                    console.log(res.data);
+                })
+                .catch(error=>{
+                    alert('出错了');
+                    console.log(error.response);
+                })
+            }
+        },
+        change_practical(){
+            this.practical_input=true;
+            this.practical_change=false;
+            this.practical_save=true;
+            this.new_practical=false;
+        },
+        save_practical(){
+            this.practical_input=false;
+            this.practical_change=true;
+            this.practical_save=false;
+            // 1.判断输入是否为空
+            if(this.practical_start==='' || this.practical_end===''){
+                alert('未输入数据')
+            }
+            // 2.发送不为空的数据
+            else {
+                this.new_practical=true;
+                let data = {'practical_start':this.practical_start,'practical_end':this.practical_end};
+                axios.put(this.url, data ,
+                    {headers: {'X-CSRFToken':getCookie('csrftoken')},
+                     responseType: 'json'})
+                .then(res=>{
+                    console.log(res.data);
+                })
+                .catch(error=>{
+                    alert('出错了');
+                    console.log(error.response);
+                })
+            }
+        },
     }
 })

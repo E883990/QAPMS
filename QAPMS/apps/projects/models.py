@@ -74,6 +74,23 @@ class ProductInformation(BaseModel):
     def __str__(self):
         return self.SKU_name
 
+class ProjectDocuments(BaseModel):
+    GENDER_CHOICES = (
+        (0, 'SOW'),
+        (1, '备用'),
+    )
+    project = models.ForeignKey(ProjectInformation, on_delete=models.PROTECT)
+    document_type = models.SmallIntegerField(choices=GENDER_CHOICES, default=1, verbose_name='文档类型')
+    document_desc = models.CharField(max_length=50, verbose_name='文档描述')
+    file = models.FileField(upload_to='documents/')
+    md5 = models.CharField(max_length=32)
+
+    class Meta:
+        db_table = 'Project_Documents'
+        verbose_name = '项目文件'
+
+    def __str__(self):
+        return self.file_name
 
 class Certification(BaseModel):
     SKU = models.ForeignKey(ProductInformation, on_delete=models.PROTECT)

@@ -230,3 +230,4 @@ EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
 
 LOGIN_URL = '/login/'
+MEDIA_ROOT=os.path.join(BASE_DIR, 'static')

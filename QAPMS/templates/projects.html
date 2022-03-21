@@ -14,7 +14,10 @@
             {% for project in projects  %}
             <li>
                 <details style="display: inline-block">
-                <summary class="project_name"><a href="{{ url('projects:project',args=(project.id, ))  }}">{{ project.project_name }}</a></summary>
+                <summary class="project_name">
+                    <a href="{{ url('projects:project',args=(project.id, )) }}">{{ project.project_name }}</a>
+                    <a href="{{ url('projects:stories', args=(project.id, )) }}" style="font-size: 30px;margin-left: 50px; color: #999999" >当前所在PG为：PG{{ project.status + 1 }}</a>
+                </summary>
                     <h3>项目成员</h3>
                         <table>
                         <tr>
@@ -34,7 +37,6 @@
                             <td>{{ project.EPL }}</td>
                         </tr>
                         </table>
-
                     <h3>项目描述:</h3>
                         <article>{{ project.project_desc }}</article>
                     <h3>项目周期:</h3>
@@ -70,7 +72,6 @@
                         {% endfor %}
                         </table>
                 </details>
-            <a href="{{ url('projects:stories', args=(project.id, )) }}" style="font-size: 30px;margin-left: 50px; color: #999999" >当前进度为：PG{{ project.status + 1 }}</a>
             </li>
             {% endfor %}
         </ol>

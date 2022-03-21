@@ -4,71 +4,17 @@
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>霍尼韦尔QA系统</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <style>
-    body{font-family:'Microsoft Yahei';font-size:12px;color: #333333;line-height: 1.2;overflow: auto}
-    html,body{height:100%}
-    .title,.PGs>a{ outline-style: solid; outline-color: #568dbd;background: lightblue;}
-    .title{position: sticky; top:10px;width: 92%; text-align: left; color: darkslategrey; font-size: 30px;padding: 1px}
-    .PGs{position: sticky; top:40px; width: 100%;text-align: center; }
-      ul {width: 90%;
-      list-style-type: none;
-      margin-top: 5px;
-      padding: 0;
-      overflow: hidden;
-    }
-    .PGs>li{border: 3px solid #666;
-    width: 15%; font-size: 20px; font-style:italic; font-weight: bold; text-align: center ;
-    {# margin: -3px; border:2px solid #666; #}
-    display:-moz-inline-box; /* css注释：for ff2 */
-    display:inline-block;
-    }
-    li {
-      float: left;
-    }
-
-    li a {
-      display: block;
-      padding: 8px;
-      background-color: #dddddd;
-    }
-</style>
 </head>
 <body>
-	<div class="pop_con" v-show="show_edit_table" v-cloak>
-		<div class="site_con site_pop">
-            <div class="site_pop_title">
-                <h3>修改/增加设备信息</h3>
-                <a @click="is_show_edit=false">×</a>
-            </div>
-            <form>
-                <div class="form_group">
-                    <label>设备型号：</label>
-                    <input v-model="form_SKU.SKU" @blur="check_receiver" type="text" class="receiver">
-                    <span v-show="error_SKU" class="receiver_error">请填写收件人</span>
-                </div>
-                <div class="form_group">
-                    <label>设备类型：</label>
-                    <select name="SKU_type" v-model="form_SKU.product_type">
-                        <option value="0">NVR</option>
-                        <option value="1" selected="selected">IPC</option>
-                        <option value="2">PTZ</option>
-                        <option value="3">Accessory</option>
-                    </select>
-                </div>
-                <div class="form_group">
-                    <label>设备名称：</label>
-                    <input v-model="form_SKU.SKU_name" type="text" class="mobile">
-                </div>
-                <div class="form_group">
-                    <label>设备描述：</label>
-                    <input v-model="form_SKU.SKU_desc"  type="text" class="tel">
-                </div>
-                <input @click="save_SKU" type="button" name="" value="新 增" class="info_submit">
-                <input @click="is_show_edit=false" type="reset" value="取 消" class="info_submit info_reset">
-            </form>
-		</div>
-		<div class="mask"></div>
-	</div>
+
+	<form method="post" enctype="multipart/form-data">
+        {{ csrf_input }}
+        <label>ID:<input type="text" name="project_id"/></label><br>
+        <label>document_type:<input type="text" name="document_type"/></label><br>
+        <label>document_desc<input type="text" name="document_desc"/></label><br>
+        <label>file<input type="file" name="file"/></label><br>
+        <input type="submit"/>
+    </form>
 </body>
-<script src={{ static('js/project.js') }}></script>
+
 </html>

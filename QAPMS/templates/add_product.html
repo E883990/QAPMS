@@ -13,7 +13,7 @@
         <div>为项目 {{ pname }} 添加设备</div>
         <fieldset>
             <legend>添加设备</legend>
-            设备型号：<input type="text" v-model="new_SKU"/>
+            设备型号：<input type="text" @blur="SKU_check" v-model="new_SKU"/>
             设备类型：<select name="SKU_type" v-model="new_SKU_type">
                         <option value="0">NVR</option>
                         <option value="1" selected="selected">IPC</option>
@@ -29,10 +29,10 @@
             <legend>设备列表</legend>
             <ul>
                 <li v-for="(each_SKU, index) in SKU_list">
-                    设备型号：<span>[[ each_SKU.SKU ]]</span>
-                    设备类型：<span>[[ each_SKU.SKU_type ]]</span>
-                    设备名称：<span>[[ each_SKU.SKU_name ]]</span>
-                    设备描述：<span>[[ each_SKU.SKU_desc ]]</span>
+                    <label>设备型号：</label><span>[[ each_SKU.SKU ]]</span>
+                    <label>设备类型：</label><span>[[ each_SKU.SKU_type ]]</span>
+                    <label>设备名称：</label><span>[[ each_SKU.SKU_name ]]</span>
+                    <label>设备描述：</label><span>[[ each_SKU.SKU_desc ]]</span>
                     <a href="javascript:;"  @click="deleteSKU(index)">删除</a>
                 </li>
             </ul>
