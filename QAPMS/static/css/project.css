@@ -66,11 +66,9 @@ tr,td,th{border:4px solid #666;margin: 0;text-align: center}
 	margin-right:10px;
 }
 
-
 .SKU_pop{
-	width:500px;
+	width:450px;
 	height:310px;
-	background:#fff;
 	border:1px solid #dddddd;
 	background-color:#f7f7f7;
 	position:fixed;
@@ -82,8 +80,8 @@ tr,td,th{border:4px solid #666;margin: 0;text-align: center}
 }
 .SKU_pop_title{
 	background:#810101;
-	margin-left:0px;
-	margin-right:0px;
+	margin-left:0;
+	margin-right:0;
 	margin-bottom:10px;
 	overflow:hidden;
 }
@@ -104,25 +102,91 @@ tr,td,th{border:4px solid #666;margin: 0;text-align: center}
 	line-height:30px;
 }
 /*修改设备错误提示*/
-.SKU_error{
-	color:#f00;margin-left:5px;
+.SKU_error,.FW_error{
+	color:#f00;margin-left:5px;font-size: 5px
 }
 .PG>div .SKU_error{font-size: 5px}
 .info_submit{
 	width:80px;
 	height:30px;
 	background-color:#fe0000;
-	border:0px;
+	border:0;
 	color:#fff;
 	margin:10px 0 10px 100px;
 	cursor:pointer;
-	font-family:'Microsoft Yahei'
 }
 .info_reset{
 	margin:10px 0 10px 10px;
 	background-color:#bd0c0c;
 }
 .mask{width:100%;height:100%;position:fixed;left:0;top:0;background-color:#000;opacity:0.3;z-index:999;}
+
+/*上传版本form的CSS*/
+.FW_con .form_group{
+	height:40px;
+	line-height:40px;
+}
+
+.FW_con .form_group>label{
+	width:100px;
+	float:left;
+	text-align:right;
+	font-size:14px;
+	height:40px;
+	line-height:40px;
+}
+
+.FW_input{
+	width:300px;
+	height:25px;
+	border:1px solid #ddd;
+	float:left;
+	outline:none;
+	margin-top:7px;
+	text-indent:10px;
+}
+
+
+.FW_pop{
+	width:450px;
+	height:450px;
+	border:1px solid #dddddd;
+	background-color:#f7f7f7;
+	position:fixed;
+	left:50%;
+	margin-left:-251px;
+	top:50%;
+	margin-top:-156px;
+	z-index:1000;
+	Overflow:auto;
+	box-sizing:border-box
+}
+.FW_pop_title{
+	background:#810101;
+	margin-left:0;
+	margin-right:0;
+	margin-bottom:10px;
+	overflow:hidden;
+}
+
+.FW_pop_title h3{
+	color:#fff;
+	float: left;
+	line-height:30px;
+	text-indent:20px;
+	font-size:16px;
+}
+
+.FW_pop_title a{
+	color:#fff;
+	float:right;
+	font-size:15px;
+	margin-right:10px;
+	line-height:30px;
+}
+
+.front_label{width: 75px;margin-left:10px;display: inline;float: left;margin-left: 10px}
+.SKU_checkbox{width: 80%; display: inline;float: right}
 
 /*防止页面加载时出现 vue.js 的变量名*/
 [v-cloak] {

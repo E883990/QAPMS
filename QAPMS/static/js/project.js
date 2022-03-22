@@ -98,6 +98,11 @@ let app = new Vue({
         PG4_new_practical:false,
         PG4_practical_change:true,
         PG4_practical_save:false,
+    //  FW 功能
+        //  V-model
+
+        //  V-show
+        show_FW_upload_table:false,
     },
     mounted:function (){
        this.url= '/project/'+ this.p_id + '/update/';

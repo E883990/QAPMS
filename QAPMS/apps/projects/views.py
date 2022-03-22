@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.conf import settings
 from datetime import date
 
-from QAPMS.utils.md5 import get_file_md5
+from QAPMS.utils.uploadfile import upload_file
 from QAPMS.utils.response_code import RETCODE
 from .models import ProjectInformation, ProductInformation, ProjectDocuments, Schedule
 
@@ -25,10 +25,7 @@ class Documents(LoginRequiredMixin, View):
         file = request.FILES.get('file')
         file_name = 'SOW_' + str(date.today()).replace('-', '') + '_' + file.name
         save_path = '%s/documents/%s' % (settings.MEDIA_ROOT, file_name)
-        with open(save_path, 'wb') as f:
-            for content in file.chunks():
-                f.write(content)
-        md5 = get_file_md5(save_path)
+        md5 = upload_file(save_path, file)
         count = ProjectDocuments.objects.filter(md5=md5).count()
         if count == 1:
             exit_file = ProjectDocuments.objects.get(md5=md5).file

@@ -186,10 +186,6 @@
                         <th>发布日期</th>
                         <th>下载</th>
                     </tr>
-                    <tr>
-                    <td><a href="{{ static('documents/SOW_20220321_CollectData_S70_PTZ.sh') }}"
-                           download="{{ static('documents/SOW_20220321_CollectData_S70_PTZ.sh') }}" target="_blank">下载</a></td>
-                    </tr>
                         {% for (document) in documents %}
                     <tr>
                         <td>{{  loop.index }}</td>
@@ -223,13 +219,13 @@
                 </td>
             </tr>
             <tr>
-                <td>PG4_实际开始时间:</td>
+                <td>PG4实际开始时间:</td>
                 <td>{{PG4.practical_start}}</td>
                 <td v-show='PG4_practical_input'><input v-model='PG4_practical_start' type="date" name="PG4_pend" /></td>
                 <td v-show='PG4_new_practical'><span>修改为：[[PG4_practical_start]]</span></td>
             </tr>
             <tr>
-                <td>PG4_实际结束时间:</td>
+                <td>PG4实际结束时间:</td>
                 <td>{{PG4.practical_end}}</td>
                 <td v-show='PG4_practical_input'><input v-model='PG4_practical_end'  type="date" name="PG4_pend" /></td>
                 <td v-show='PG4_new_practical'><span>修改为：[[PG4_practical_end]]</span></td>
@@ -240,11 +236,16 @@
             </tr>
             </table>
             </div>
+            <div title="软件版本">
+                <div title="版本发布"></div>
+                    <button type="button" @click="show_FW_upload_table=true">上传版本</button>
+                <div title="版本列表"></div>
+            </div>
         </div>
         <div v-show="PG5">PG52infor</div>
         <div v-show="PG6">PG6infor</div>
     </div>
-    <div title="修改设备信息" v-show="show_edit_table" v-cloak>
+    <div title="修改设备信息" v-show="show_edit_table">
 		<div class="SKU_con SKU_pop">
             <div class="SKU_pop_title">
                 <h3>修改设备信息</h3>
@@ -271,10 +272,52 @@
                 </div>
                 <div class="form_group">
                     <label>设备描述：</label>
-                    <input v-model="form_SKU.SKU_desc"  type="text" @blur="check_SKU">
+                    <input v-model="form_SKU.SKU_desc"  type="text">
                 </div>
                 <input @click="save_SKU" type="button" name="" value="保存修改" class="info_submit">
                 <input @click="show_edit_table=false" type="reset" value="取 消" class="info_submit info_reset">
+            </form>
+		</div>
+		<div class="mask"></div>
+	</div>
+    <div title="版本发布界面" v-show="show_FW_upload_table">
+		<div class="FW_con FW_pop">
+            <div class="SKU_pop_title">
+                <h3>软件版本信息</h3>
+                <a @click="show_FW_upload_table=false">×</a>
+            </div>
+            <form>
+                <div class="form_group">
+                    <label>软件drop：</label>
+                    <input class="FW_input" name="FW_drop" type="number" placeholder="第几个版本">
+                </div>
+                <div class="form_group">
+                    <label>版本名称：</label>
+                    <input class="FW_input" name="version_name" type="text" placeholder="版本名称，例如3M FW"/>
+                </div>
+                <div class="form_group">
+                    <label>版本描述：</label>
+                    <input class="FW_input" name="version_information" type="text" placeholder="简要描述当前版本目的">
+                </div>
+
+                <div class="form_group">
+                    <label>上传软件：</label>
+                    <input class="FW_input" type="file" name="FW_file">
+                </div>
+                <div class="form_group">
+                    <label>release note:</label>
+                    <input class="FW_input" type="file" name="FW_file"  accept=".doc,.docx">
+                </div>
+                <div class="form_group">
+                    <div class="front_label">适用SKU：</div>
+                    <div class="SKU_checkbox">
+                        {% for SKU in SKUs %}
+                        <label>{{ SKU.SKU }}<input type="checkbox" value={{ SKU.SKU }}/></label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <input type="submit" name="" value="提 交" class="info_submit">
+                <input @click="show_FW_upload_table=false" type="reset" value="取 消" class="info_submit info_reset">
 
             </form>
 		</div>
