@@ -90,7 +90,7 @@ class ProjectDocuments(BaseModel):
         verbose_name = '项目文件'
 
     def __str__(self):
-        return self.file_name
+        return self.document_desc
 
 class Certification(BaseModel):
     SKU = models.ForeignKey(ProductInformation, on_delete=models.PROTECT)

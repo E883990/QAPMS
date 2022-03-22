@@ -2,10 +2,14 @@ let app = new Vue({
     el: '#project',
     delimiters: ['[[', ']]'],
     data: {
-        url: window.location.href + 'update/',
+        //先处理Django变量
         SKU_list: JSON.parse(JSON.stringify(SKUs)),
         PG_shows: JSON.parse(JSON.stringify(PG_show)),
         p_id: JSON.parse(JSON.stringify(project_id)),
+        url: '',
+        //v-model:
+        SKU_check_list:[],
+        editing_SKU_index:'',
         form_SKU: {
             id:'',
             SKU: '',
@@ -13,9 +17,6 @@ let app = new Vue({
             SKU_name: '',
             SKU_desc: '',
         },
-        SKU_check_list:[],
-        editing_SKU_index:'',
-        //v-model:
         project_name: '',
         project_desc: '',
         QAPL: '',
@@ -82,8 +83,25 @@ let app = new Vue({
         error_update_members_msg:'',
         error_SKU_msg:'',
         SKU_error_msg:'',
+        // PG4页面
+            // V-model
+        PG4_pstart:'',
+        PG4_pend:'',
+        PG4_practical_start:'',
+        PG4_practical_end:'',
+            // v-show
+        PG4_p_input:false,
+        PG4_new_plan:false,
+        PG4_plan_change:true,
+        PG4_plan_save:false,
+        PG4_practical_input:false,
+        PG4_new_practical:false,
+        PG4_practical_change:true,
+        PG4_practical_save:false,
     },
     mounted:function (){
+       this.url= '/project/'+ this.p_id + '/update/';
+       // alert(this.url);
        switch (this.PG_shows){
            case "PG1":
                this.show_PG1();
@@ -103,6 +121,9 @@ let app = new Vue({
            case "PG6":
                this.show_PG6();
                break;
+           default:
+               this.show_PG1();
+               break
        }
     },
     methods:{
@@ -293,7 +314,7 @@ let app = new Vue({
             this.added_SKU_show=false
         },
         // 设备输入检查，只检查型号
-        new_SKU_check(){
+        new_SKU_check:function (){
             //先将错误码取消，否则失败一次永远无法添加
             this.error_SKU = false;
             //  判断需要添加的设备是否重名
@@ -318,7 +339,7 @@ let app = new Vue({
             // 4.清空检查表，防止重复添加
             this.SKU_check_list=[];
         },
-        add_SKU(){
+        add_SKU:function (){
         // 1.检查设备是否为空
             if(!this.new_SKU){
                 this.error_SKU = true;
@@ -377,6 +398,7 @@ let app = new Vue({
                     {headers: {'X-CSRFToken':getCookie('csrftoken')},
                      responseType: 'json'})
                 .then(res=>{
+                    alert(this.url)
                     console.log(res.data);
                 })
                 .catch(error=>{
@@ -385,13 +407,13 @@ let app = new Vue({
                 })
             }
         },
-        change_practical(){
+        change_practical:function (){
             this.practical_input=true;
             this.practical_change=false;
             this.practical_save=true;
             this.new_practical=false;
         },
-        save_practical(){
+        save_practical:function (){
             this.practical_input=false;
             this.practical_change=true;
             this.practical_save=false;
@@ -408,6 +430,66 @@ let app = new Vue({
                      responseType: 'json'})
                 .then(res=>{
                     console.log(res.data);
+                })
+                .catch(error=>{
+                    alert('出错了');
+                    console.log(error.response);
+                })
+            }
+        },
+        PG4_change_plan:function (){
+            this.PG4_p_input=true;
+            this.PG4_new_plan=false;
+            this.PG4_plan_change=false;
+            this.PG4_plan_save=true;
+        },
+        PG4_save_plan:function (){
+             // 1.判断输入是否为空
+            if(this.PG4_pstart==='' || this.PG4_pend===''){
+                alert('未输入数据')
+            }
+            // 2.发送不为空的数据
+            else {
+                let data = {'PG4_pstart':this.PG4_pstart,'PG4_pend':this.PG4_pend};
+                axios.put(this.url, data ,
+                    {headers: {'X-CSRFToken':getCookie('csrftoken')},
+                     responseType: 'json'})
+                .then(res=>{
+                    console.log(res.data);
+                    this.PG4_p_input=false;
+                    this.PG4_new_plan=true;
+                    this.PG4_plan_change=true;
+                    this.PG4_plan_save=false;
+                })
+                .catch(error=>{
+                    alert('出错了');
+                    console.log(error.response);
+                })
+            }
+        },
+        PG4_change_practical:function (){
+            this.PG4_practical_input=true;
+            this.PG4_new_practical=false;
+            this.PG4_practical_change=false;
+            this.PG4_practical_save=true;
+        },
+        PG4_save_practical:function (){
+              // 1.判断输入是否为空
+            if(this.PG4_practical_start==='' || this.PG4_practical_end===''){
+                alert('未输入数据')
+            }
+            // 2.发送不为空的数据
+            else {
+                let data = {'PG4_practical_start':this.PG4_practical_start,'PG4_practical_end':this.PG4_practical_end};
+                axios.put(this.url, data ,
+                    {headers: {'X-CSRFToken':getCookie('csrftoken')},
+                     responseType: 'json'})
+                    .then(res=>{
+                    console.log(res.data);
+                    this.PG4_practical_input=false;
+                    this.PG4_new_practical=true;
+                    this.PG4_practical_change=true;
+                    this.PG4_practical_save=false;
                 })
                 .catch(error=>{
                     alert('出错了');

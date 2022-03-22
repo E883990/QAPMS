@@ -1,6 +1,6 @@
 import datetime
 import json
-import os
+
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import DatabaseError
@@ -13,7 +13,7 @@ from datetime import date
 
 from QAPMS.utils.md5 import get_file_md5
 from QAPMS.utils.response_code import RETCODE
-from .models import ProjectInformation, ProductInformation, ProjectDocuments
+from .models import ProjectInformation, ProductInformation, ProjectDocuments, Schedule
 
 # Create your views here.
 
@@ -71,7 +71,7 @@ class ProjectUpdateView(LoginRequiredMixin, View):
                     project.save()
                 except DatabaseError:
                     return http.HttpResponseForbidden('DB error:输入的项目名称错误')
-                return http.JsonResponse({'code': RETCODE.PARAMERR, 'update_name_show': True})
+                return http.JsonResponse({'code': RETCODE.OK, 'update_name_show': True})
         # 修改项目描述
         if 'project_desc' in project_update.keys():
             new_desc = project_update.get('project_desc')
@@ -80,7 +80,7 @@ class ProjectUpdateView(LoginRequiredMixin, View):
                 project.save()
             except DatabaseError:
                 return http.HttpResponseForbidden('DB error:输入的项目描述错误')
-            return http.JsonResponse({'code': RETCODE.PARAMERR, 'update_desc_show': True})
+            return http.JsonResponse({'code': RETCODE.OK, 'update_desc_show': True})
         # 修改项目成员
         if 'project_manager' in project_update.keys():
             # 是否没有输入任何值
@@ -116,7 +116,7 @@ class ProjectUpdateView(LoginRequiredMixin, View):
                     project.sava()
                 except DatabaseError:
                     return http.HttpResponseForbidden('DB error:输入的项目成员错误')
-            return http.JsonResponse({'code': RETCODE.PARAMERR, 'update_members_show': True})
+            return http.JsonResponse({'code': RETCODE.OK, 'update_members_show': True})
         # 修改项目计划
         if 'pstart' in project_update.keys():
             new_pstart = project_update.get('pstart')
@@ -127,9 +127,9 @@ class ProjectUpdateView(LoginRequiredMixin, View):
                 project.save()
             except DatabaseError:
                 return http.HttpResponseForbidden('DB error:输入的项目计划错误')
-            return http.JsonResponse({'code': RETCODE.PARAMERR, 'new_plan': True})
+            return http.JsonResponse({'code': RETCODE.OK, 'new_plan': True})
         # 修改项目实际周期
-        if 'practical_start'in project_update.keys():
+        if 'practical_start' in project_update.keys():
             new_practical_start = project_update.get('practical_start')
             new_practical_end = project_update.get('practical_end')
             try:
@@ -138,7 +138,30 @@ class ProjectUpdateView(LoginRequiredMixin, View):
                 project.save()
             except DatabaseError:
                 return http.HttpResponseForbidden('DB error:输入的项目实际周期错误')
-            return http.JsonResponse({'code': RETCODE.PARAMERR, 'new_practical': True})
+            return http.JsonResponse({'code': RETCODE.OK, 'new_practical': True})
+        # 修改项目PG4计划
+        PG4_plan = Schedule.objects.get(project_id=project_id, phase=4)
+        if 'PG4_pstart' in project_update.keys():
+            new_PG4_pstart = project_update.get('PG4_pstart')
+            new_PG4_pend = project_update.get('PG4_pend')
+            try:
+                PG4_plan.plan_start = new_PG4_pstart
+                PG4_plan.plan_end = new_PG4_pend
+                PG4_plan.save()
+            except DatabaseError:
+                return http.HttpResponseForbidden('DB error:输入的项目计划错误')
+            return http.JsonResponse({'code': RETCODE.OK, 'new_PG4_plan': True})
+        # 修改项目PG4实际周期
+        if 'PG4_practical_start' in project_update.keys():
+            new_practical_start = project_update.get('PG4_practical_start')
+            new_practical_end = project_update.get('PG4_practical_end')
+            try:
+                PG4_plan.practical_start = new_practical_start
+                PG4_plan.practical_end = new_practical_end
+                PG4_plan.save()
+            except DatabaseError:
+                return http.HttpResponseForbidden('DB error:输入的项目计划错误')
+            return http.JsonResponse({'code': RETCODE.OK, 'new_PG4_plan': True})
 
 class StoriesView(LoginRequiredMixin, View):
     def get(self, request, project_id):
@@ -146,7 +169,7 @@ class StoriesView(LoginRequiredMixin, View):
 
 class TestView(View):
     def get(self, request):
-        return render(request,'test.html')
+        return render(request, 'test.html')
 
     def post(self, request):
 
@@ -187,7 +210,7 @@ class AddProductsView(LoginRequiredMixin, View):
         if count != 0:
             return http.JsonResponse({'code': RETCODE.PARAMERR, 'errmsg': 'SKU重复'})
         try:
-            ProductInformation.objects.filter(id=SKU_id).update(
+            ProductInformation.objects.filter(project=project_id, id=SKU_id).update(
                 SKU=SKU,
                 product_type=product_type,
                 SKU_name=SKU_name,
@@ -211,7 +234,9 @@ class ProjectView(LoginRequiredMixin, View):
     def get(self, request, project_id, pg_show='PG1'):
         try:
             project = ProjectInformation.objects.get(id=project_id)
+            # 构造项目信息字典返回给前端
             # 将用户地址模型列表转字典列表:因为JsonResponse和Vue.js不认识模型类型，只有Django和Jinja2模板引擎认识
+            # 1.构造设备信息
             SKUs = project.productinformation_set.filter(is_delete=False)
             SKU_list = []
             for SKU in SKUs:
@@ -223,7 +248,8 @@ class ProjectView(LoginRequiredMixin, View):
                     'SKU_desc': SKU.SKU_desc,
                 }
                 SKU_list.append(SKU_dir)
-            # 构造项目信息字典返回给前端
+
+            # 2.构造设备列表
             documents = project.projectdocuments_set.all()
             document_list = []
             for document in documents:
@@ -235,6 +261,27 @@ class ProjectView(LoginRequiredMixin, View):
                     'create_time': document.create_time
                 }
                 document_list.append(document_dir)
+            # 3.构造PG时间表
+            count1 = Schedule.objects.filter(project=project_id, phase=4).count()
+            if count1 == 0:
+                pg4_plan_dir = {'plan_start': '', 'plan_end': '', 'practical_start': '', 'practical_end': ''}
+            else:
+                pg4_plan = Schedule.objects.get(project=project_id, phase=4)
+                pg4_plan_dir = {'plan_start': pg4_plan.plan_start or '',
+                                'plan_end': pg4_plan.plan_end or '',
+                                'practical_start': pg4_plan.practical_start or '',
+                                'practical_end': pg4_plan.practical_end or ''}
+
+            count2 = Schedule.objects.filter(project=project_id, phase=5).count()
+            if count2 == 0:
+                pg5_plan_dir = {'plan_start': '', 'plan_end': '', 'practical_start': '', 'practical_end': ''}
+            else:
+                pg5_plan = Schedule.objects.get(project=project_id, phase=5)
+                pg5_plan_dir = {'plan_start': pg5_plan.plan_start or '',
+                                'plan_end': pg5_plan.plan_end or '',
+                                'practical_start': pg5_plan.practical_start or '',
+                                'practical_end': pg5_plan.practical_end or ''}
+            # 4.整合项目信息
             project_dir = {
                 'project_id': project.id,
                 'project_name': project.project_name,
@@ -250,6 +297,8 @@ class ProjectView(LoginRequiredMixin, View):
                 'SKUs': SKU_list,
                 'PG_show': pg_show,
                 'documents': document_list,
+                'PG4': pg4_plan_dir,
+                'PG5': pg5_plan_dir,
             }
         except DatabaseError:
             return http.HttpResponse('project not found!')
@@ -314,15 +363,17 @@ class CreateProjectView(LoginRequiredMixin, View):
         else:
             status = 1
         try:
-            ProjectInformation.objects.create(project_name=pname, project_desc=pdesc,
-                                              QAPL=QAPL, project_manager=pjm,
-                                              product_manager=pdm, EPL=EPL,
-                                              plan_start=plan_start or datetime.date(2017, 1, 1),
-                                              plan_end=plan_end or datetime.date(2017, 1, 1),
-                                              status=status)
+            project = ProjectInformation.objects.create(
+                project_name=pname, project_desc=pdesc,
+                QAPL=QAPL, project_manager=pjm,
+                product_manager=pdm, EPL=EPL,
+                plan_start=plan_start or datetime.date(2017, 1, 1),
+                plan_end=plan_end or datetime.date(2017, 1, 1),
+                status=status)
+            Schedule.objects.create(project=project.id, phase=4)
+            Schedule.objects.create(project=project.id, phase=5)
         except DatabaseError:
             return render(request, 'new_project.html', {'project_code_errmsg': 'create project failed'})
-        project_id = ProjectInformation.objects.get(project_name=pname).id
         return redirect(reverse('projects:projects'))
 
 class ProjectCheckView(View):

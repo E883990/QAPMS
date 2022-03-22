@@ -8,7 +8,7 @@
     <script type="text/javascript" src="{{ static('/js/axios-0.18.0.min.js') }}"></script>
 </head>
 <body>
-<div id="project">
+<div id="project" v-cloak>
     <label class="title">项目名称:{{project_name}}
     <input maxlength="30" type='text' v-model='project_name' v-show='name_input' placeholder="项目名称" name="pname"/>
     <span class="show_change" v-show="update_name_show">项目名已修改为:[[project_name]]</span>
@@ -202,7 +202,45 @@
                 </table>
             </div>
         </div>
-        <div v-show="PG4">PG4infor</div>
+        <div v-show="PG4">
+            <div title="PG4周期">
+            <h3>软件发布计划:</h3>
+            <table>
+            <tr>
+                <td>PG4计划开始时间:</td>
+                <td>{{PG4.plan_start}}</td>
+                <td v-show='PG4_p_input'><input v-model='PG4_pstart' type="date" name="PG_pstart" /></td>
+                <td v-show='PG4_new_plan'><span>修改为：[[PG4_pstart]]</span></td>
+            </tr>
+            <tr>
+                <td>PG4计划结束时间:</td>
+                <td>{{PG4.plan_end}}</td>
+                <td v-show='PG4_p_input'><input v-model='PG4_pend' type="date" name="PG4_pend" /></td>
+                <td v-show='PG4_new_plan'><span>修改为：[[PG4_pend]]</span></td>
+                <td>
+                    <button @click='PG4_change_plan' type='button' v-show='PG4_plan_change' class="btn_out">修改</button>
+                    <button @click='PG4_save_plan' type='button' v-show='PG4_plan_save' class="btn_out">保存</button>
+                </td>
+            </tr>
+            <tr>
+                <td>PG4_实际开始时间:</td>
+                <td>{{PG4.practical_start}}</td>
+                <td v-show='PG4_practical_input'><input v-model='PG4_practical_start' type="date" name="PG4_pend" /></td>
+                <td v-show='PG4_new_practical'><span>修改为：[[PG4_practical_start]]</span></td>
+            </tr>
+            <tr>
+                <td>PG4_实际结束时间:</td>
+                <td>{{PG4.practical_end}}</td>
+                <td v-show='PG4_practical_input'><input v-model='PG4_practical_end'  type="date" name="PG4_pend" /></td>
+                <td v-show='PG4_new_practical'><span>修改为：[[PG4_practical_end]]</span></td>
+                <td>
+                    <button @click='PG4_change_practical' type='button' v-show='PG4_practical_change' class="btn_out">修改</button>
+                    <button @click='PG4_save_practical' type='button' v-show='PG4_practical_save' class="btn_out">保存</button>
+                </td>
+            </tr>
+            </table>
+            </div>
+        </div>
         <div v-show="PG5">PG52infor</div>
         <div v-show="PG6">PG6infor</div>
     </div>
@@ -247,8 +285,9 @@
 <script type="text/javascript">
     let SKUs= {{ SKUs | safe }};
     let project_id={{ project_id | safe }};
+    {#可选参数，选择显示哪个PG，必须加上'',否则Vue不知道为什么读出来不是字符串#}
     let PG_show='{{ PG_show | safe }}';
 </script>
 	<script type="text/javascript" src="{{ static('js/common.js') }}"></script>
-    <script type="text/javascript" src={{ static('js/project.js') }}></script>
+    <script type="text/javascript" src="{{ static('js/project.js') }}"></script>
 </html>s
