@@ -188,7 +188,7 @@
                     </tr>
                         {% for (document) in documents %}
                     <tr>
-                        <td>{{  loop.index }}</td>
+                        <td>{{ loop.index }}</td>
                         <td>{{ document.document_desc }}</td>
                         <td>{{ document.document_type }}</td>
                         <td>{{ document.create_time }}</td>
@@ -237,9 +237,28 @@
             </table>
             </div>
             <div title="软件版本">
-                <div title="版本发布"></div>
+                <div title="版本列表">
+{#                    <h3>版本列表（共<b>[[SKU_list.length]]</b>个）：</h3>#}
+{#                    <table>#}
+{#                     <tr>#}
+{#                        <th>版本drop</th>#}
+{#                        <th>版本名称</th>#}
+{#                        <th>版本描述</th>#}
+{#                        <th>设备描述</th>#}
+{#                    </tr>#}
+{#                    <tr v-for="(SKU, index) in SKU_list">#}
+{#                        <td> [[SKU.SKU]]#}
+{#                            <a @click="show_edit_SKU(index)" class="edit_SKU"></a>#}
+{#                        </td>#}
+{#                        <td> [[SKU.product_type]] </td>#}
+{#                        <td> [[SKU.SKU_name]]</td>#}
+{#                        <td> [[SKU.SKU_desc]] </td>#}
+{#                    </tr>#}
+{#                    </table>#}
+                </div>
+                <div title="版本发布">
                     <button type="button" @click="show_FW_upload_table=true">上传版本</button>
-                <div title="版本列表"></div>
+                </div>
             </div>
         </div>
         <div v-show="PG5">PG52infor</div>
@@ -286,14 +305,15 @@
                 <h3>软件版本信息</h3>
                 <a @click="show_FW_upload_table=false">×</a>
             </div>
-            <form>
+            <form method="post" action="{{ url('projects:FWupload',args=(project_id,))}}" name="FW_info" enctype="multipart/form-data">
+            {{ csrf_input }}
                 <div class="form_group">
                     <label>软件drop：</label>
                     <input class="FW_input" name="FW_drop" type="number" placeholder="第几个版本">
                 </div>
                 <div class="form_group">
                     <label>版本名称：</label>
-                    <input class="FW_input" name="version_name" type="text" placeholder="版本名称，例如3M FW"/>
+                    <input class="FW_input" name="version_name" type="text" placeholder="适配哪些型号，例如：3M camera FW"/>
                 </div>
                 <div class="form_group">
                     <label>版本描述：</label>
@@ -304,15 +324,17 @@
                     <label>上传软件：</label>
                     <input class="FW_input" type="file" name="FW_file">
                 </div>
+                <div style="text-align: center" class="FW_error">上传前修改便于识别的文件名</div>
                 <div class="form_group">
                     <label>release note:</label>
-                    <input class="FW_input" type="file" name="FW_file"  accept=".doc,.docx">
+                    <input class="FW_input" type="file" name="release_note"  accept=".doc,.docx">
+
                 </div>
                 <div class="form_group">
                     <div class="front_label">适用SKU：</div>
                     <div class="SKU_checkbox">
                         {% for SKU in SKUs %}
-                        <label>{{ SKU.SKU }}<input type="checkbox" value={{ SKU.SKU }}/></label>
+                        <label>{{ SKU.SKU }}<input name='SKU_checkbox' type="checkbox" value={{ SKU.SKU }}/></label>
                         {% endfor %}
                     </div>
                 </div>
@@ -328,8 +350,10 @@
 <script type="text/javascript">
     let SKUs= {{ SKUs | safe }};
     let project_id={{ project_id | safe }};
+    {#let FW_list={{ FW_list | safe }};#}
     {#可选参数，选择显示哪个PG，必须加上'',否则Vue不知道为什么读出来不是字符串#}
     let PG_show='{{ PG_show | safe }}';
+
 </script>
 	<script type="text/javascript" src="{{ static('js/common.js') }}"></script>
     <script type="text/javascript" src="{{ static('js/project.js') }}"></script>

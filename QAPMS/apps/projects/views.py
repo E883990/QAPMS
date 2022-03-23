@@ -1,6 +1,6 @@
 import datetime
 import json
-
+import os
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import DatabaseError
@@ -11,11 +11,102 @@ from django.urls import reverse
 from django.conf import settings
 from datetime import date
 
+from QAPMS.utils.md5 import get_file_md5
 from QAPMS.utils.uploadfile import upload_file
 from QAPMS.utils.response_code import RETCODE
-from .models import ProjectInformation, ProductInformation, ProjectDocuments, Schedule
+from .models import ProjectInformation, ProductInformation, ProjectDocuments, Schedule, FWList
+
+# 用来测试的：
+class TestView(View):
+    def get(self, request):
+        # FWs= FWList.objects.filter(id=6)
+        # for FW in FWs:
+        #     print((type(FW.SKU)))
+        #     print(FW.SKU)
+        #     print(FW.SKU.SKU)
+        drop_list = FWList.objects.filter(project_id=19).values('drop_num').distinct()
+        FWs_in_drop = FWList.objects.filter(project_id=19, drop_num=2)
+        FW_dir_list = FWs_in_drop.values('version_name', 'version_information', 'FW', 'release_note').distinct()
+        for FW_dir in FW_dir_list:
+            # distinct后拆分的数据是字典，所以要用Get获取数据
+            SKUs_in_FW = FWs_in_drop.filter(version_name=FW_dir.get('version_name'))
+            SKU_list=[]
+            for SKU in SKUs_in_FW:
+                # 第一个SKU是数据对象，第二个SKU是SKU外键反向查询，获得产品表中的数据对象，第三个SKU是获得的SKU内容
+                SKU_list.append(SKU.SKU.SKU)
+            FW_dir['SKU_in_FW'] = SKU_list
+            print(FW_dir)
+        print(FW_dir_list)
+        return http.HttpResponse(FW_dir_list)
+
+    def post(self, request):
+        check_box_list = request.POST.getlist("SKUs")
+        return http.HttpResponse(check_box_list)
 
 # Create your views here.
+class FW_upload(LoginRequiredMixin, View):
+    def post(self, request, project_id):
+        # 获取数据
+        id = project_id
+        FW_drop = request.POST.get('FW_drop')
+        version_name = request.POST.get('version_name')
+        version_information = request.POST.get('version_information')
+        SKU_checkbox = request.POST.getlist('SKU_checkbox')
+        release_note = request.FILES.get('release_note')
+        FW_file = request.FILES.get('FW_file')
+        FW_path = '%s/FW/%s' % (settings.MEDIA_ROOT, FW_file.name)
+        release_note_path = '%s/FW/%s' % (settings.MEDIA_ROOT, release_note.name)
+        # 对于上传文件的判断：
+        # 上传文件,只有在文件不存在的情况下才上传文件
+        if not os.path.exists(release_note_path):
+            release_md5 = upload_file(release_note_path, release_note)
+        else:
+            release_md5 = get_file_md5(release_note_path)
+        if not os.path.exists(FW_path):
+            FW_md5 = upload_file(FW_path, FW_file)
+        else:
+            FW_md5 = get_file_md5(FW_path)
+        #   1，上传完文件，通过MD5判断是否已经存在
+        checklist = FWList.objects.exclude(project=project_id, drop_num=FW_drop)
+        md5_count1 = checklist.filter(release_note_md5=release_md5).count()
+        md5_count2 = checklist.filter(FW_md5=FW_md5).count()
+        if md5_count1 != 0 and md5_count2 == 0:
+            os.remove(release_note_path)
+            os.remove(FW_path)
+            return http.HttpResponse('存在相同内容的release note，请重新上传')
+        if md5_count1 == 0 and md5_count2 != 0:
+            os.remove(FW_path)
+            os.remove(release_note_path)
+            return http.HttpResponse('存在相同内容的FW，请重新上传')
+        if md5_count1 != 0 and md5_count2 != 0:
+            os.remove(release_note_path)
+            os.remove(FW_path)
+            return http.HttpResponse('存在相同内容的FW和release note，请重新上传')
+        #   2，文件不存在，且MD5没有出现在当前项目当前drop，可以写数据库
+        # 检查当前项目当前drop当前SKU的数据是否存在
+        error_msg = ''
+        success_msg = ''
+        for SKU in SKU_checkbox:
+            SKU_id = ProductInformation.objects.get(SKU=SKU.replace('/', '')).id
+            count = FWList.objects.filter(project_id=id, drop_num=FW_drop, SKU=SKU_id).count()
+            # 有数据就不写了
+            if count == 1:
+                error_msg = error_msg + SKU
+                #  当前SKU在当前drop没有数据就在数据库输入数据
+            else:
+                FWList.objects.create(project_id=project_id,
+                                      drop_num=FW_drop,
+                                      SKU_id=SKU_id,
+                                      version_name=version_name,
+                                      version_information=version_information,
+                                      FW='FW/%s' % FW_file.name,
+                                      release_note='FW/%s' % release_note.name,
+                                      FW_md5=FW_md5,
+                                      release_note_md5=release_md5)
+                success_msg = success_msg + SKU
+        error_msg = "数据库已经有记录:"+error_msg
+        success_msg = "添加数据据成功"+success_msg
+        return http.HttpResponse(error_msg+"------"+success_msg)
 
 class Documents(LoginRequiredMixin, View):
 
@@ -164,14 +255,6 @@ class StoriesView(LoginRequiredMixin, View):
     def get(self, request, project_id):
         return render(request, 'stories.html')
 
-class TestView(View):
-    def get(self, request):
-        return render(request, 'test.html')
-
-    def post(self, request):
-
-        return http.HttpResponse()
-
 class AddProductsView(LoginRequiredMixin, View):
     def get(self, request, project_id):
         return redirect(reverse('projects:project'), args=[project_id])
@@ -231,9 +314,12 @@ class ProjectView(LoginRequiredMixin, View):
     def get(self, request, project_id, pg_show='PG1'):
         try:
             project = ProjectInformation.objects.get(id=project_id)
+        except DatabaseError:
+            return http.HttpResponse('project not found!')
             # 构造项目信息字典返回给前端
             # 将用户地址模型列表转字典列表:因为JsonResponse和Vue.js不认识模型类型，只有Django和Jinja2模板引擎认识
             # 1.构造设备信息
+        try:
             SKUs = project.productinformation_set.filter(is_delete=False)
             SKU_list = []
             for SKU in SKUs:
@@ -245,8 +331,10 @@ class ProjectView(LoginRequiredMixin, View):
                     'SKU_desc': SKU.SKU_desc,
                 }
                 SKU_list.append(SKU_dir)
-
+        except DatabaseError:
+            return http.HttpResponse('SKU not found!')
             # 2.构造设备列表
+        try:
             documents = project.projectdocuments_set.all()
             document_list = []
             for document in documents:
@@ -258,7 +346,10 @@ class ProjectView(LoginRequiredMixin, View):
                     'create_time': document.create_time
                 }
                 document_list.append(document_dir)
+        except DatabaseError:
+            return http.HttpResponse('Documents as SOW not found!')
             # 3.构造PG时间表
+        try:
             count1 = Schedule.objects.filter(project=project_id, phase=4).count()
             if count1 == 0:
                 pg4_plan_dir = {'plan_start': '', 'plan_end': '', 'practical_start': '', 'practical_end': ''}
@@ -278,27 +369,53 @@ class ProjectView(LoginRequiredMixin, View):
                                 'plan_end': pg5_plan.plan_end or '',
                                 'practical_start': pg5_plan.practical_start or '',
                                 'practical_end': pg5_plan.practical_end or ''}
-            # 4.整合项目信息
-            project_dir = {
-                'project_id': project.id,
-                'project_name': project.project_name,
-                'project_desc': project.project_desc,
-                'QAPL': project.QAPL,
-                'project_manager': project.project_manager,
-                'EPL': project.EPL,
-                'product_manager': project.product_manager,
-                'plan_start': project.plan_start,
-                'plan_end': project.plan_end,
-                'practical_start': project.practical_start or '',
-                'practical_end': project.practical_end or '',
-                'SKUs': SKU_list,
-                'PG_show': pg_show,
-                'documents': document_list,
-                'PG4': pg4_plan_dir,
-                'PG5': pg5_plan_dir,
-            }
         except DatabaseError:
-            return http.HttpResponse('project not found!')
+            return http.HttpResponse('Documents as SOW not found!')
+            # 4.构造版本信息
+        try:
+            FWs = project.fwlist_set.all()
+            FW_list = []
+            for FW in FWs:
+                FW_dir = {
+                    'ID': FW.id,
+                    'drop_num': FW.drop_num,
+                    'SKU': FW.SKU,
+                    'version_name': FW.version_name,
+                    'version_information': FW.version_information,
+                    'FW': FW.FW,
+                    'release_note': FW.release_note,
+                }
+                FW_list.append(FW_dir)
+        except DatabaseError:
+            FW_list = [{
+                    'ID': '',
+                    'drop_num': '',
+                    'SKU': '',
+                    'version_name': '',
+                    'version_information': '',
+                    'FW': '',
+                    'release_note': '',
+                }]
+            # 5.整合项目信息
+        project_dir = {
+            'project_id': project.id,
+            'project_name': project.project_name,
+            'project_desc': project.project_desc,
+            'QAPL': project.QAPL,
+            'project_manager': project.project_manager,
+            'EPL': project.EPL,
+            'product_manager': project.product_manager,
+            'plan_start': project.plan_start,
+            'plan_end': project.plan_end,
+            'practical_start': project.practical_start or '',
+            'practical_end': project.practical_end or '',
+            'SKUs': SKU_list,
+            'PG_show': pg_show,
+            'documents': document_list,
+            'PG4': pg4_plan_dir,
+            'PG5': pg5_plan_dir,
+            'FW_list': FW_list,
+        }
         return render(request, 'project.html', project_dir)
 
 class ProjectsView(LoginRequiredMixin, View):

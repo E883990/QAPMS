@@ -108,10 +108,10 @@ class Certification(BaseModel):
 
 class FWList(BaseModel):
     project = models.ForeignKey(ProjectInformation, on_delete=models.PROTECT)
-    drop_num = models.IntegerField(verbose_name='第几次发布')
+    drop_num = models.IntegerField(verbose_name='第几次发布', default=1)
     SKU = models.ForeignKey(ProductInformation, on_delete=models.PROTECT)
-    version_name = models.CharField(max_length=10, verbose_name='版本名称')
-    version_information = models.CharField(max_length=40, verbose_name='版本描述', unique=True)
+    version_name = models.CharField(max_length=30, verbose_name='版本名称')
+    version_information = models.CharField(max_length=40, verbose_name='版本描述')
     FW = models.FileField(upload_to='FW/')
     release_note = models.FileField(upload_to='FW/')
     FW_md5 = models.CharField(max_length=32)

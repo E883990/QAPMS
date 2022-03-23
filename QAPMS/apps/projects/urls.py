@@ -24,4 +24,6 @@ urlpatterns = [
     path('addproducts/<project_id>/', views.AddProductsView.as_view(), name='addproducts'),
     # 文件上传
     path('project/<project_id>/documents/', views.Documents.as_view(), name='upload_SOW'),
+    # FW 上传
+    path('project/<project_id>/FWupload/', views.FW_upload.as_view(), name='FWupload'),
 ]

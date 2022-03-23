@@ -47,22 +47,7 @@ class Migration(migrations.Migration):
                 'db_table': 'Product_Infor',
             },
         ),
-        migrations.CreateModel(
-            name='FWList',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('create_time', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('update_time', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('version_information', models.CharField(max_length=40, unique=True, verbose_name='版本号')),
-                ('FW_location', models.CharField(max_length=40, unique=True, verbose_name='软件保存位置')),
-                ('releasenote_location', models.CharField(max_length=40, unique=True, verbose_name='软件保存位置')),
-                ('SKU', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='projects.productinformation')),
-            ],
-            options={
-                'verbose_name': '软件版本信息',
-                'db_table': 'FW_List',
-            },
-        ),
+
         migrations.CreateModel(
             name='Certification',
             fields=[
