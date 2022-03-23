@@ -19,35 +19,34 @@ from .models import ProjectInformation, ProductInformation, ProjectDocuments, Sc
 # 用来测试的：
 class TestView(View):
     def get(self, request):
-        # FWs= FWList.objects.filter(id=6)
-        # for FW in FWs:
-        #     print((type(FW.SKU)))
-        #     print(FW.SKU)
-        #     print(FW.SKU.SKU)
-        drop_list = FWList.objects.filter(project_id=19).values('drop_num').distinct()
-        FWs_in_drop = FWList.objects.filter(project_id=19, drop_num=2)
-        FW_dir_list = FWs_in_drop.values('version_name', 'version_information', 'FW', 'release_note').distinct()
-        for FW_dir in FW_dir_list:
-            # distinct后拆分的数据是字典，所以要用Get获取数据
-            SKUs_in_FW = FWs_in_drop.filter(version_name=FW_dir.get('version_name'))
-            SKU_list=[]
-            for SKU in SKUs_in_FW:
-                # 第一个SKU是数据对象，第二个SKU是SKU外键反向查询，获得产品表中的数据对象，第三个SKU是获得的SKU内容
-                SKU_list.append(SKU.SKU.SKU)
-            FW_dir['SKU_in_FW'] = SKU_list
-            print(FW_dir)
-        print(FW_dir_list)
-        return http.HttpResponse(FW_dir_list)
+        drop_dir_list = FWList.objects.filter(project_id=19).values('drop_num').distinct()
+        # distinct后拆分的数据是字典，所以要用Get获取数据
+        drop_list = []
+        for drop_dir in drop_dir_list:
+            drop_num = drop_dir.get('drop_num')
+            FWs_in_drop = FWList.objects.filter(project_id=19, drop_num=drop_num)
+            FW_dir_list = FWs_in_drop.values('version_name', 'version_information', 'FW', 'release_note').distinct()
+            FW_list = []
+            for FW_dir in FW_dir_list:
+                # distinct后拆分的数据是字典，所以要用Get获取数据
+                SKUs_in_FW = FWs_in_drop.filter(version_name=FW_dir.get('version_name'))
+                SKU_list = []
+                for SKU in SKUs_in_FW:
+                    # 第一个SKU是数据对象，第二个SKU是SKU外键反向查询，获得产品表中的数据对象，第三个SKU是获得的SKU内容
+                    SKU_list.append(SKU.SKU.SKU)
+                FW_dir['SKU_in_FW'] = SKU_list
+                FW_list.append(FW_dir)
+            drop_list.append({drop_num: FW_list})
+        return render(request, 'test.html', {'drop_FW_list': drop_list})
 
     def post(self, request):
         check_box_list = request.POST.getlist("SKUs")
         return http.HttpResponse(check_box_list)
 
 # Create your views here.
-class FW_upload(LoginRequiredMixin, View):
+class FWUpload(LoginRequiredMixin, View):
     def post(self, request, project_id):
         # 获取数据
-        id = project_id
         FW_drop = request.POST.get('FW_drop')
         version_name = request.POST.get('version_name')
         version_information = request.POST.get('version_information')
@@ -88,7 +87,7 @@ class FW_upload(LoginRequiredMixin, View):
         success_msg = ''
         for SKU in SKU_checkbox:
             SKU_id = ProductInformation.objects.get(SKU=SKU.replace('/', '')).id
-            count = FWList.objects.filter(project_id=id, drop_num=FW_drop, SKU=SKU_id).count()
+            count = FWList.objects.filter(project_id=project_id, drop_num=FW_drop, SKU=SKU_id).count()
             # 有数据就不写了
             if count == 1:
                 error_msg = error_msg + SKU
