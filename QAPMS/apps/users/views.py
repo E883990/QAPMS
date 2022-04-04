@@ -44,7 +44,7 @@ class LogoutView(View):
         # 清理session
         logout(request)
         # 退出登录，重定向到登录页
-        response = redirect(reverse('users:login'))
+        response = redirect(reverse('users:index'))
         # 退出登录时清除cookie中的username
         response.delete_cookie('username')
         return response

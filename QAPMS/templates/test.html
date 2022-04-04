@@ -3,27 +3,16 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>霍尼韦尔QA系统</title>
-    <style>
-.FW_pop{
-    width:450px;
-    height:450px;
-    border:1px solid #dddddd;
-    background-color:#f7f7f7;
-    position:fixed;
-    left:50%;
-    margin-left:-251px;
-    top:40%;
-    margin-top:-156px;
-    z-index:1000;
-    box-sizing:border-box
-}
-.title{margin-left:20px; width: 85px;display: inline;float: left}
-.SKUs{width: 300px; display: inline;float: right}
-
-    </style>
 </head>
 <body>
-{{ context }}
+<video width="320" height="240" controls="controls">
+  <source src="{{ static('images/1.mp4') }}" type="video/mp4" />
+  <source src="{{ static('images/1.ogg') }}" type="video/ogg" />
+  <source src="{{ static('images/1.webm') }}" type="video/webm" />
+  <object data="{{ static('images/1.mp4') }}" width="320" height="240">
+    <embed src="{{ static('images/1.swf') }}" width="320" height="240" />
+  </object>
+</video>
 </body>
 
 </html>

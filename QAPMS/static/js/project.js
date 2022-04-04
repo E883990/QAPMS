@@ -6,6 +6,7 @@ let app = new Vue({
         SKU_list: JSON.parse(JSON.stringify(SKUs)),
         PG_shows: JSON.parse(JSON.stringify(PG_show)),
         p_id: JSON.parse(JSON.stringify(project_id)),
+        drop_FWs: JSON.parse(JSON.stringify(drop_FW_list)),
         url: '',
         //v-model:
         SKU_check_list:[],
@@ -196,7 +197,9 @@ let app = new Vue({
                 this.error_project_name_msg='没有做任何修改'
                 return
             }
-            axios.put(this.url, data ,{responseType: 'json'})
+            axios.put(this.url, data , {
+                        headers: {'X-CSRFToken':getCookie('csrftoken')},
+                        responseType: 'json'})
                 .then(res=>{
                     console.log(res.data);
                     if (res.data.update_name_show){this.update_name_show = true;}
@@ -205,7 +208,7 @@ let app = new Vue({
                     this.error_project_name_msg='项目名重复';}
                 })
                 .catch(error=>{
-                    alert('出错了');
+                    alert('project_name出错了');
                     console.log(error.response);
                 })
         },
@@ -225,7 +228,9 @@ let app = new Vue({
                 this.error_project_name_msg='没有做任何修改'
                 return
             }
-            axios.put(this.url, data, {responseType: 'json'})
+            axios.put(this.url, data, {
+                        headers: {'X-CSRFToken':getCookie('csrftoken')},
+                        responseType: 'json'})
                 .then(res=>{
                     if (res.data.update_desc_show){
                         this.update_desc_show=true;
@@ -233,7 +238,7 @@ let app = new Vue({
                     console.log(res.data);
                 })
                 .catch(error=>{
-                    alert('出错了');
+                    alert('project_desc出错了');
                     console.log(error.response);
                 })
         },
@@ -254,7 +259,9 @@ let app = new Vue({
                 this.error_update_members_msg='没有做任何修改'
                 return
             }
-            axios.put(this.url, data ,{responseType: 'json'})
+            axios.put(this.url, data , {
+                        headers: {'X-CSRFToken':getCookie('csrftoken')},
+                        responseType: 'json'})
                 .then(res=>{
                     if (res.data.update_members_show){
                         this.update_members_show=true;
@@ -264,7 +271,7 @@ let app = new Vue({
                     console.log(res.data);
                 })
                 .catch(error=>{
-                    alert('出错了');
+                    alert('save_members出错了');
                     console.log(error.response);
                 })
         },
@@ -407,7 +414,7 @@ let app = new Vue({
                     console.log(res.data);
                 })
                 .catch(error=>{
-                    alert('出错了');
+                    alert('save_plan出错了');
                     console.log(error.response);
                 })
             }
@@ -437,7 +444,7 @@ let app = new Vue({
                     console.log(res.data);
                 })
                 .catch(error=>{
-                    alert('出错了');
+                    alert('save_practical出错了');
                     console.log(error.response);
                 })
             }
@@ -467,7 +474,7 @@ let app = new Vue({
                     this.PG4_plan_save=false;
                 })
                 .catch(error=>{
-                    alert('出错了');
+                    alert('PG4_save_plan出错了');
                     console.log(error.response);
                 })
             }
@@ -497,7 +504,7 @@ let app = new Vue({
                     this.PG4_practical_save=false;
                 })
                 .catch(error=>{
-                    alert('出错了');
+                    alert('PG4_save_practical出错了');
                     console.log(error.response);
                 })
             }

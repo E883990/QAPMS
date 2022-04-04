@@ -19,25 +19,7 @@ from .models import ProjectInformation, ProductInformation, ProjectDocuments, Sc
 # 用来测试的：
 class TestView(View):
     def get(self, request):
-        drop_dir_list = FWList.objects.filter(project_id=19).values('drop_num').distinct()
-        # distinct后拆分的数据是字典，所以要用Get获取数据
-        drop_list = []
-        for drop_dir in drop_dir_list:
-            drop_num = drop_dir.get('drop_num')
-            FWs_in_drop = FWList.objects.filter(project_id=19, drop_num=drop_num)
-            FW_dir_list = FWs_in_drop.values('version_name', 'version_information', 'FW', 'release_note').distinct()
-            FW_list = []
-            for FW_dir in FW_dir_list:
-                # distinct后拆分的数据是字典，所以要用Get获取数据
-                SKUs_in_FW = FWs_in_drop.filter(version_name=FW_dir.get('version_name'))
-                SKU_list = []
-                for SKU in SKUs_in_FW:
-                    # 第一个SKU是数据对象，第二个SKU是SKU外键反向查询，获得产品表中的数据对象，第三个SKU是获得的SKU内容
-                    SKU_list.append(SKU.SKU.SKU)
-                FW_dir['SKU_in_FW'] = SKU_list
-                FW_list.append(FW_dir)
-            drop_list.append({drop_num: FW_list})
-        return render(request, 'test.html', {'drop_FW_list': drop_list})
+        return http.HttpResponse('check_box_list')
 
     def post(self, request):
         check_box_list = request.POST.getlist("SKUs")
@@ -252,7 +234,7 @@ class ProjectUpdateView(LoginRequiredMixin, View):
 
 class StoriesView(LoginRequiredMixin, View):
     def get(self, request, project_id):
-        return render(request, 'stories.html')
+        return render(request, 'stories.html', project_id)
 
 class AddProductsView(LoginRequiredMixin, View):
     def get(self, request, project_id):
@@ -332,7 +314,7 @@ class ProjectView(LoginRequiredMixin, View):
                 SKU_list.append(SKU_dir)
         except DatabaseError:
             return http.HttpResponse('SKU not found!')
-            # 2.构造设备列表
+            # 2.构造文件列表
         try:
             documents = project.projectdocuments_set.all()
             document_list = []
@@ -371,30 +353,27 @@ class ProjectView(LoginRequiredMixin, View):
         except DatabaseError:
             return http.HttpResponse('Documents as SOW not found!')
             # 4.构造版本信息
-        try:
-            FWs = project.fwlist_set.all()
+        drop_dir_list = FWList.objects.filter(project_id=19).values('drop_num').distinct()
+        # distinct后拆分的数据是字典，所以要用Get获取数据
+        drop_list = []
+        for drop in drop_dir_list:
+            drop_dir = {}
+            drop_num = drop.get('drop_num')
+            FWs_in_drop = FWList.objects.filter(project_id=19, drop_num=drop_num)
+            FW_dir_list = FWs_in_drop.values('version_name', 'version_information', 'FW', 'release_note').distinct()
             FW_list = []
-            for FW in FWs:
-                FW_dir = {
-                    'ID': FW.id,
-                    'drop_num': FW.drop_num,
-                    'SKU': FW.SKU,
-                    'version_name': FW.version_name,
-                    'version_information': FW.version_information,
-                    'FW': FW.FW,
-                    'release_note': FW.release_note,
-                }
+            for FW_dir in FW_dir_list:
+                # distinct后拆分的数据是字典，所以要用Get获取数据
+                SKUs_in_FW = FWs_in_drop.filter(version_name=FW_dir.get('version_name'))
+                SKU_list_in_FW = []
+                for SKU in SKUs_in_FW:
+                    # 第一个SKU是数据对象，第二个SKU是SKU外键反向查询，获得产品表中的数据对象，第三个SKU是获得的SKU内容
+                    SKU_list_in_FW.append(SKU.SKU.SKU)
+                FW_dir['SKU_in_FW'] = SKU_list_in_FW
                 FW_list.append(FW_dir)
-        except DatabaseError:
-            FW_list = [{
-                    'ID': '',
-                    'drop_num': '',
-                    'SKU': '',
-                    'version_name': '',
-                    'version_information': '',
-                    'FW': '',
-                    'release_note': '',
-                }]
+            drop_dir['FW_list'] = FW_list
+            drop_dir['drop_num'] = drop_num
+            drop_list.append(drop_dir)
             # 5.整合项目信息
         project_dir = {
             'project_id': project.id,
@@ -413,7 +392,7 @@ class ProjectView(LoginRequiredMixin, View):
             'documents': document_list,
             'PG4': pg4_plan_dir,
             'PG5': pg5_plan_dir,
-            'FW_list': FW_list,
+            'drop_FW_list': drop_list,
         }
         return render(request, 'project.html', project_dir)
 

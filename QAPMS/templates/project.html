@@ -238,23 +238,29 @@
             </div>
             <div title="软件版本">
                 <div title="版本列表">
-{#                    <h3>版本列表（共<b>[[SKU_list.length]]</b>个）：</h3>#}
-{#                    <table>#}
-{#                     <tr>#}
-{#                        <th>版本drop</th>#}
-{#                        <th>版本名称</th>#}
-{#                        <th>版本描述</th>#}
-{#                        <th>设备描述</th>#}
-{#                    </tr>#}
-{#                    <tr v-for="(SKU, index) in SKU_list">#}
-{#                        <td> [[SKU.SKU]]#}
-{#                            <a @click="show_edit_SKU(index)" class="edit_SKU"></a>#}
-{#                        </td>#}
-{#                        <td> [[SKU.product_type]] </td>#}
-{#                        <td> [[SKU.SKU_name]]</td>#}
-{#                        <td> [[SKU.SKU_desc]] </td>#}
-{#                    </tr>#}
-{#                    </table>#}
+                    <h3>版本列表:(共[[drop_FWs.length]]个版本）</h3>
+                    <ol>
+                       <li v-for="drop in drop_FWs">
+                           <details>
+                               <summary>
+                                   drop[[drop.drop_num]]:
+                               </summary>
+                                    <ol>
+                                        <li v-for="FW in drop.FW_list">
+                                            <details>
+                                                <summary>
+                                                    FW 名字:[[FW.version_name]]
+                                                    <a style="float: right; margin-left: 10px" :href="'/static/'+[[FW.FW]]" :download="'/static/'+[[FW.FW]]" target="_blank">下载FW</a>
+                                                    <a style="float: right; margin-left: 10px" :href="'/static/'+[[FW.release_note]]" :download="'/static/'+[[FW.release_note]]" target="_blank">下载release note</a>
+                                                </summary>
+                                                    <span style="margin-left: 10px" v-for="sku in FW.SKU_in_FW">[[sku]]</span>
+
+                                            </details>
+                                        </li>
+                                    </ol>
+                           </details>
+                       </li>
+                    </ol>
                 </div>
                 <div title="版本发布">
                     <button type="button" @click="show_FW_upload_table=true">上传版本</button>
@@ -350,11 +356,12 @@
 <script type="text/javascript">
     let SKUs= {{ SKUs | safe }};
     let project_id={{ project_id | safe }};
-    {#let FW_list={{ FW_list | safe }};#}
+    let drop_FW_list={{ drop_FW_list | safe }};
     {#可选参数，选择显示哪个PG，必须加上'',否则Vue不知道为什么读出来不是字符串#}
     let PG_show='{{ PG_show | safe }}';
 
 </script>
 	<script type="text/javascript" src="{{ static('js/common.js') }}"></script>
     <script type="text/javascript" src="{{ static('js/project.js') }}"></script>
+    <script type="text/javascript" src="{{ static('js/index.js') }}"></script>
 </html>s
